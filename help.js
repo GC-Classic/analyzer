@@ -125,15 +125,12 @@ Object.assign(RunePicker, {
         reinforce = reinforce == '+0' ? '' : reinforce == '+1' ? "'" : reinforce == '+2' ? '"' : reinforce;
         return prop + reinforce;
     },
-    sets: {   
-        fury: '盛怒', endure: '忍耐', tolerance: '韌性', will: '意志', focus: '集中', doom: '破滅', fight: '鬥志', guard: '守護', enhance: '激昂', shield: '保護', expert: '熟練', javelin: '鬥槍', resist: '抵抗', roar: '怒吼', grow: '成長', sage: '賢者', limit: '極端', hunt: '狩獵', awaken: '覺醒', arena: '競技場', affinity: '和諧', recovery: '恢復', resurrect: '復活', rage: '憤怒', overcome: '克服', punish: '處決', protect: '庇護',
-    }
 });
 Object.assign(RunePicker.build, {
     tier : [1,2,3,4,5].map(t => ({children: `T${t}`, value: t}) ),
     grade: ['Common|普通','Rare|稀有','Epic|史詩','Legend|傳說'].map(g => ({children: E.bilingual(g), value: g[0]}) ),
     level: [...Array(11)].map((_, l) => ({children: `+${l}`, value: l}) ),
-    set  : Rune.set.flat().map(s => ({children: E('img', {src: `/rune/set/${s}.webp`}), value: s, title: RunePicker.sets[s]}) ),
+    set  : Rune.set.flat().map(s => ({children: E('img', {src: `/rune/set/${s}.webp`}), value: s}) ),
     primary: shape => Rune.primary[shape].map(p => ({children: E.prop(p), value: p}) ),
     secondary: Object.keys(Rune.secondary).map(p => ({children: E.prop(p), value: p, name: 'secondary'}) )
 
@@ -224,7 +221,8 @@ const Help = {
         `Defense against normal attack with hell spear activated`,
         `對有發動地獄之矛的一般攻擊的防禦`,
     ],
-    ...Object.fromEntries(Object.entries(Icon.en).map(([prop, en]) => [`prop-icon[prop=${prop}]`, [en, Icon.zh[prop]]]))
+    ...Object.fromEntries(Object.entries(Icon.en).map(([prop, en]) => [`prop-icon[prop=${prop}]`, [en, Icon.zh[prop]]])),
+    ...Object.fromEntries(Object.entries(Rune.set.zh).map(([en, zh]) => [`img[alt=${en}]`, [en, zh]]))
 }
 Object.defineProperties(Help, {
     cursor: {
