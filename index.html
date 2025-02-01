@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<title>Power analyzer</title>
+<meta charset="utf-8">
+<meta name=viewport content='width=device-width,initial-scale=1,maximum-scale=1'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Monda:wght@700&family=Shippori+Antique&family=Sofia+Sans+Condensed:wght@600;800&display=swap" rel="stylesheet">
+<script src="/common.js"></script>
+<script src="form.js"></script>
+<script src="form-char.js"></script>
+<script src="form-buff.js"></script>
+<script src="form-rune.js"></script>
+<script src="form-enemy.js"></script>
+<script src="/rune/rune.js"></script>
+<script src="/rune/rune-element.js"></script>
+<script src="analyzer.js"></script>
+<script src="help.js"></script>
+<link rel="stylesheet" href="/common.css">
+
+<header>
+    <details>
+        <summary><span>Reminders</span><span>提示</span></summary>
+        <ul>
+            <li>
+                <span>All content will be saved to your browser automatically.</span>
+                <span>所有內容自動保存至你的瀏覽器。</span>
+            <li>
+                <span>If you see a question mark next to the cursor, right-click for an instruction.</span>
+                <span>若看到鼠標旁有問號，點擊右鍵會有提示。</span>
+            <li>
+                <span><img src="/rune/set/tolerance.webp"> effect affects character stats, but due to the complications in calculation with a title of vitality boost, it is neglected in this analyzer.</span>
+                <span><img src="/rune/set/tolerance.webp"> 效果會影響面版數値，但由於與加生命力的頭銜一同裝備時計算較複雜，故此計算器內忽略。</span>
+            
+    </details>
+    <div>
+        <nav>
+            <a href="./" onclick="DB.export(this)"><span>Export storage</span><span>下載儲存資料</span></a>
+            <a href="" onchange="DB.import(this)"><label><span>Import storage</span><span>上載儲存資料</span><input type="file"></label></a>
+            <a href="#en" class="lang">English</a>
+            <a href="#zh" class="lang"><span class="always">中文</span></a>
+        </nav>
+        <p></p>
+        <menu>
+            <li>
+                <input type="checkbox" name="action" id="add">
+                <label for="add"><span>Add char</span><span>增加角色</span></label>
+            <li>
+                <input type="checkbox" name="action" id="delete">
+                <label for="delete"><span>Delete char</span><span>刪除角色</span></label>
+            <li>
+                <ul><li></ul>
+                <label for="jump"><span>Jump to</span><span>跳至</span></label>
+        </menu>
+    </div>
+</header>
+
+<main hidden>
+    <section></section>
+</main>
+
+<aside>
+    <form id="tier"></form>
+    <form id="grade"></form>
+    <div>
+        <span>Primary</span><span>主屬性</span>
+        <form id="primary"></form>
+        <form id="level"></form>
+    </div>
+    <div>
+        <span>Secondary</span><span>副屬性</span>
+        <form id="secondary"></form>
+        <form>
+            <input><input><input>
+        </form>
+    </div>
+    <div>
+        <span>Set</span><span>套裝</span>
+        <form id="set"></form>
+    </div>
+</aside>
+
+<dialog onclick="this.close()"></dialog>
+
+<footer>
+    <a href="/rune/analyzer"><span>Rune</span><span>符文</span></a>・
+    <a href="/damage"><span>Damage</span><span>傷害</span></a>・
+    <a href="/property"><span>Property</span><span>屬性</span></a>
+    <cite>By V. Man (@beybladeburst) GuRan GCC 2021</cite>
+</footer>
+
+<template>
+    <ul>
+        <li id="invalid-tier"><span>Invalid tier</span><span>階級不可能</span>
+        <li id="invalid-grade"><span>Invalid grade</span><span>等級不可能</span>
+        <li id="invalid-primary"><span>Invalid primary property</span><span>主屬性不可能</span>
+        <li id="invalid-level"><span>Invalid level</span><span>強化等級不可能</span>
+        <li id="invalid-secondary"><span>Invalid secondary properties</span><span>副屬性不可能</span>
+        <li id="invalid-secondary-level"><span>Invalid secondary reinforced times</span><span>副屬性強化次數不可能</span>
+        <li id="unmatched-secondary"><span>Unmatched secondary number and reinforced times with grade and level</span><span>副屬性數量及強化次數與等級不符</span>
+        <li id="invalid-set"><span>Invalid set</span><span>套裝不存在</span>
+    </ul>
+</template>
+
+<script>
+    onhashchange(location.hash.substring(1) || 'en');
+    customElements.whenDefined('power-analyzer').then(() => Q('main').hidden = false);
+    DB.show('characters');
+    RunePicker();
+    Help.event();
+    Help.cursor();
+    addEventListener('help', (ev) => ev.stopPropagation() ?? Help.show(ev.detail));
+
+    Menu();
+    Q('input[name=action]', input => input.onchange = ev => Analyzer[input.id](ev.target.checked));
+    Menu.action = dragged => Q(`power-analyzer:nth-child(${dragged.Q('input:checked').value})`).scrollIntoView();
+    Menu.arrange = () => {
+        Q('menu>li:last-child ul').replaceChildren(
+            ...[...Q('section').children].reverse().map((cal, i, ar) => {
+                let li = E('li', [E('label', [
+                    E('input', {type: 'radio', name: 'char', value: ar.length - i}), 
+                    E('span', '●', {classList: 'always'})
+                ])]);
+                li.style.backgroundColor = cal.sQ('input[type=color]').value;
+                return li;
+            })
+        );
+        Menu.align();
+    }
+    new MutationObserver(Menu.arrange).observe(Q('section'), {childList: true});
+</script>
+<style>
+    aside {
+        overflow-x:scroll;
+        display:grid;
+        grid-template:'tier level primary secondary set' auto 'grade level primary secondary set' auto / 11.2em max-content max-content max-content;
+        >* {max-height:5em;}
+    }
+    aside form {
+        display:flex; flex-wrap:wrap; align-items:center;
+    }
+    aside div {
+        display:flex; align-items:center;
+        border-left:.1rem solid var(--bg);
+        padding:0 .5rem;
+
+        span {
+            width:1em; 
+            color:var(--bg);
+            margin-right:.2rem;
+            
+            &:lang(en) {writing-mode:sideways-lr;}
+        }
+        form {
+            flex-flow:column wrap; justify-content:center;
+            height:100%;
+        }
+    }
+    aside label {
+        padding:0 .5em; margin:.2em; 
+        border-radius:9em; 
+        background:var(--bg);
+        position:relative;
+
+        &.blue {outline:.1rem solid blue;}
+        &.lime {outline:.1rem solid lime;}
+        &.red {outline:.1rem solid red;}
+
+        &:has(:checked):not(:has(img,prop-icon)) {background:#7387fa;;}
+        &:has(:checked):has(img,prop-icon) {filter:brightness(2.5);}
+        >* {vertical-align:middle !important;}
+    }
+    #tier {grid-area:tier;text-align:left;}
+    #grade {grid-area:grade;}
+    div:has(#primary) {grid-area:primary;}
+    div:has(#secondary) {grid-area:secondary;}
+    div:has(#set) {grid-area:set;}
+
+    input:not([type]) {
+        width:2.5em;
+        margin:.2em;
+        font-size:inherit;
+
+        &:nth-child(1) {outline:.1em blue solid;}
+        &:nth-child(2) {outline:.1em lime solid;}
+        &:nth-child(3) {outline:.1em red solid;}
+    }
+</style>

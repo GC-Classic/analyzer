@@ -1,0 +1,181 @@
+class RuneForm extends Form {
+    constructor(saved) {
+        super(saved);
+        saved === undefined && (this.sample = true);
+        this.shadowRoot.append(...RuneForm.DOM());
+    }
+    connectedCallback () {
+        super.connectedCallback();
+        this.events();
+        this.el = {
+            data: this.sQ('.delta'),
+            switches: this.sQ('[id|=switch]'),
+            slots: {
+                before: this.sQ('.rune-slot:first-child'),
+                after: this.sQ('.rune-slot:last-child')
+            }
+        };
+        this.sample ? this.randomize() : this.switchOff();
+    }            
+    events () {
+        this.sQ('form').onchange = ev => {
+            if (ev.target.type == 'radio') return RunePicker.aside.classList.remove('remind');
+            ['text', 'select-one'].includes(ev.target.type) && this.changeRune(ev.target);
+            this.dispatch();
+        }
+        this.sQ('form').onclick = ev => ev.stopPropagation();
+        this.sQ('input:not([type])', input => input.onfocus = ev => RunePicker.set(ev));
+    }
+    randomize () {
+        this.el.switches.forEach(input => input.checked = true);
+        this.sQ('input:not([type])', input => {
+            input.value = new Rune([input.id.split('-')[1]]).stringify().replace(/^\[.\]/, '');
+            this.changeRune(input, true);
+        });
+    }
+    switchOff () {
+        this.sQ('[id|=to]').forEach(input => 
+            !input.value && (input.closest('fieldset').Q('[id|=switch]').checked = false));
+    }
+    changeRune (target, sample) {
+        let [input, slot, select] = target.type == 'select-one' ?
+            [target.previousSibling, target.previousSibling.labels[0], target] :
+            [target, target.labels[0], target.closest('div').Q('select')];
+
+        if (select) {
+            target == select && (input.value = select.value);
+            input.value ? select.prepend(select.selectedOptions[0]) : select.options[select.selectedIndex]?.remove();
+            input.value ||= select.options[0]?.value || '';
+        }
+        if (!input.value)
+            return slot.replaceChildren();
+
+        let rune = RuneForm.parse(input, input.id.split('-')[1]);
+        if (!rune) return;
+        slot.replaceChildren(new RuneElement(rune));
+
+        input.value = rune = rune.stringify().replace(/^\[.\]/, '').replace(/[(){},]/g, ' $& ');
+        if (select) {
+            let redundant = input.value.replace(/(?<=\{ ).+?(?= \})/, '').replaceAll("'", "\\'");
+            select.Q(`[value='${redundant}']`)?.remove();
+            !sample && [...select.options].every(o => o.value != input.value)
+                && select.append(E('option', input.value, {value: input.value, selected: true}));
+        }
+    }
+    give () {
+        let sets = {
+            before: Runes.sets.find(this.el.slots.before.map(s => s.firstElementChild)),
+            after: Runes.sets.find(this.el.switches.map((input, i) => this.el.slots[input.checked ? 'after' : 'before'][i].firstElementChild)),
+        };
+        let buffs = {
+            before: new Stats().add(...sets.before.map(s => Rune.set.buff[s])),
+            after: new Stats().add(...sets.after.map(s => Rune.set.buff[s])),
+        };
+        this.present(sets, buffs);
+        let setEffect = new Stats()
+            .add(...sets.after.map(s => Rune.set.effect[s]))
+            .minus(...sets.before.map(s => Rune.set.effect[s]));
+            
+        let diffs = [...this.el.switches.map((input, i) => input.checked ?
+            RuneForm.getStats(this.el.slots.after[i]).minus(RuneForm.getStats(this.el.slots.before[i])) :
+            new Stats() 
+        ), setEffect];
+        return {diffs, buffs};
+    };
+    take = diffs => this.el.data.forEach((data, i) => data.value = diffs[i]);
+    present (sets, stats) {
+        let images = sets => sets.map(s => E('img', {src: `/rune/set/${s}.webp`}));
+        this.sQ(`figure:first-of-type`).replaceChildren(...images(sets.before));
+        this.sQ(`figure:last-of-type`).replaceChildren(...images(sets.after));
+        this.getRootNode().host?.present(sets.before.filter(s => Rune.set.buff[s]), sets.after.filter(s => Rune.set.buff[s]));
+        stats = stats.after.minus(stats.before);
+        this.sQ(`div data`, data => data.value = stats[data.title] || 0);
+    }
+    save () {return super.save(':not(:is([name=shape],[id|=to]))');}
+    static DOM = () => [
+        E('form', [
+            ...[0,3,4,5,6].flatMap(s => [
+                E.radio({checked: s === 0, name: 'shape'}, [E('data', {classList: 'delta'})]),
+                E('fieldset', [
+                    E('div', {classList: 'from'}, [
+                        E('input', {id: `from-${s}`, placeholder: 'Equipped'}),
+                        E('em')
+                    ]),
+                    E('div', {classList: 'change'}, [
+                        E('label', {htmlFor: `from-${s}`, classList: 'rune-slot'}),
+                        E.checkbox({id: `switch-${s}`}, ['⟶']),
+                        E('label', {htmlFor: `to-${s}`, classList: 'rune-slot'}),
+                    ]),
+                    E('div', {classList: 'to'}, [
+                        E('em'),
+                        E('input', {id: `to-${s}`, placeholder: 'Subject'}),
+                        E('select', {name: `to-${s}`})
+                    ]),
+                ])
+            ]),
+            E('figure'), E('figure'),
+        ]),
+        E('div', ['A', 'HS'].map(p => [
+            p == 'A' ? [E.prop('A'), E.prop('SA')] : E.prop(p), 
+            E('data', {classList: `boost percent`, title: p}),
+        ]).flat(9))
+    ];
+    static getStats = slot => new Stats(slot.firstElementChild?.rune?.stats);
+    static parse = (input, shape) => { 
+        let em = input.parentElement.Q('em');
+        em.innerHTML = '';
+        try {
+            let [, tier, grade, level, primary, secondary, set] = /^t?(\d)?(.)?\+?(\d+)?(.+?)?(?:\((.*?)\))?(?:\{(.*?)\})?$/i.exec(input.value.replaceAll(' ', ''));
+            tier = parseInt(tier);
+            if (!(tier >= 1 && tier <= 5))
+                throw ('invalid-tier');
+            grade = Rune.grade.indexOf(grade?.toUpperCase());
+            if (grade < 0)
+                throw ('invalid-grade');
+            level = parseInt(level);
+            if (!(level >= 0 && level <= 10))
+                throw ('invalid-level');
+            primary = primary?.toUpperCase();
+            if (!Rune.primary[shape].includes(primary))
+                throw ('invalid-primary');
+            
+            let rune = {shape, tier, grade, primary: {prop: primary, level}};
+            secondary = RuneForm.parse.secondary(secondary, rune);
+            set = set?.toLowerCase();
+            /^[一-龢]+$/.test(set) && (set = Q('template').content.Q('#set li').find(li => li.textContent.trim() == set).id || set);
+            if (set && !Rune.set.flat().includes(set))
+                throw ('invalid-set');
+
+            return new Rune({ ...rune, secondary, set });
+        } catch (er) { RuneForm.error(em, er) }
+    }
+    static error = (em, er) => typeof er == 'string' ? em.replaceChildren(...Q('template').content.Q(`#${er}`).cloneNode(true).children) : console.error(er);
+    static secondaryLevel = (tier, prop, value) => {
+        let {secondary} = Rune.values;
+        return Math.round((parseFloat(value) / (Rune.values.base[prop] + (secondary.correct[prop] ?? 0)) 
+        / (1 + secondary.multiple + tier * secondary.tier) - 1) / secondary.level);
+    }
+}
+Object.assign(RuneForm.parse, {
+    secondary: (string, {tier, grade, primary}) => {
+        let secondary = string ? string.split(/,/).map(s => {
+            let [, prop, level] = /^([A-z]+)(.*)$/.exec(s.replaceAll('"', "''"));
+            prop = prop.toUpperCase();
+            level = /^[\d.]+$/.test(level) ? RuneForm.secondaryLevel(tier, prop, level) : level.length;
+            return ({prop, level});
+        }) : [];
+        let realized = [primary.prop, ...secondary.map(s => s.prop)];
+        if (new Set(realized.filter(prop => Rune.secondary[prop])).size < realized.length)
+            throw('invalid-secondary');
+        if (!secondary.every(({level}) => level >= 0 && level <= 2))
+            throw('invalid-secondary-level');
+
+        let secondaries = grade + Math.floor(primary.level/3) + (primary.level == 10);
+        let count = Math.min(3, secondaries);
+        let reinforces = secondaries - count;
+        if (secondary.length != count || secondary.reduce((sum, {level}) => sum += level, 0) != reinforces)
+            throw('unmatched-secondary');
+        return secondary;
+    }
+});
+customElements.define('rune-form', RuneForm);
