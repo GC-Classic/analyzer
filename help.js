@@ -65,7 +65,9 @@ const RunePicker = () => {
             RunePicker.secondary[ev.target.checked ? 'add' : 'remove'](ev.target.labels[0]);
         }
         RunePicker.read();
-    }
+    };
+    RunePicker.aside.onwheel = ev => ev.preventDefault() || (RunePicker.aside.scrollLeft += ev.deltaY);
+
     Q('main').onclick = ev => {
         if (ev.target.id || ev.target.htmlFor) return;
         RunePicker.aside.classList.remove('remind');

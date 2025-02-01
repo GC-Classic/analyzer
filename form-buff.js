@@ -15,7 +15,6 @@ class BuffForm extends Form {
         this.el = {
             sections: this.sQ('section'),
             form: this.sQ('form'),
-            coef: this.sQ('[name=coef]'),
             data: this.sQ('data[title]'),
             formulae: this.sQ('.formula'),
             items: {
@@ -23,6 +22,7 @@ class BuffForm extends Form {
                 after: this.sQ('section:last-of-type :is([type=radio],[type=checkbox])')
             },
             setupInputs: this.sQ('label .setup'),
+            ...Object.fromEntries(['coef', 'rune', 'boss', 'TD'].map(name => [name, this.sQ(`[name=${name}]`)]))
         }
         this.events();
         this.classList.add('normal');
@@ -34,7 +34,7 @@ class BuffForm extends Form {
             stored[['normal', 'sp13', 'sp4', 'spA'].findIndex(c => this.classList.contains(c))] = ev.target.value;
             ev.target.dataset.stored = JSON.stringify(stored);
         }
-        this.el.form.onchange = ev => ev.target.type != 'radio' && this.dispatch();        ;
+        this.el.form.onchange = ev => ev.target.type != 'radio' && this.dispatch(); 
     }
     give () {
         let buffs = {
@@ -50,14 +50,14 @@ class BuffForm extends Form {
     }
     take (stuff) {
         if (typeof stuff == 'number')
-            return this.sQ('[name=TD]').value = stuff;
-        this.sQ('[name=rune]', input => input.checked = false);
+            return this.el.TD.value = stuff;
+        this.el.rune.forEach(input => input.checked = false);
         this.el.sections.forEach(sec => stuff.forEach(set =>
             sec.Q(`label:nth-child(1 of :has([id*=${set}]:not(:checked))) input`).checked = true
         ));
     }
     sum = (diff) => this.numeric(`[name=${diff ? 'Δ' : ''}attd]`) + 
-        (this.sQ('[name=boss]').checked ? this.numeric(`[name=${diff ? 'Δ' : ''}attBoss]`) : 0) + 
+        (this.el.boss.checked ? this.numeric(`[name=${diff ? 'Δ' : ''}attBoss]`) : 0) + 
         (this.matches('.sp13,.sp4,.spA') ? 
             this.numeric(`[name=${diff ? 'Δ' : ''}sp]`) + this.numeric(`[name=${diff ? 'Δ' : ''}${[...this.classList].find(c => /^sp/.test(c))}]`)
         : 0);
@@ -136,6 +136,7 @@ class BuffForm extends Form {
         },
         rune: {
             fury1:{A:5}, fury2:{A:5}, fight1:{A:2.5}, fight2:{A:2.5},
+            hunt:{A:10},
             roar1:{HS:10}, roar2:{HS:10}
         },
         title: {

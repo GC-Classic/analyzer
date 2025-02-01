@@ -6,36 +6,43 @@ class RuneForm extends Form {
     }
     connectedCallback () {
         super.connectedCallback();
-        this.events();
         this.el = {
+            form: this.sQ('form'),
             data: this.sQ('.delta'),
             switches: this.sQ('[id|=switch]'),
             slots: {
                 before: this.sQ('.rune-slot:first-child'),
                 after: this.sQ('.rune-slot:last-child')
-            }
+            },
+            figure: {
+                before: this.sQ(`figure:first-of-type`),
+                after: this.sQ(`figure:last-of-type`),
+            },
+            runeStrings: this.sQ('input:not([type])'),
+            newRunes: this.sQ('[id|=to]'),
+            present: this.sQ(`div data`)
         };
+        this.events();
         this.sample ? this.randomize() : this.switchOff();
     }            
     events () {
-        this.sQ('form').onchange = ev => {
+        this.el.form.onchange = ev => {
             if (ev.target.type == 'radio') return RunePicker.aside.classList.remove('remind');
             ['text', 'select-one'].includes(ev.target.type) && this.changeRune(ev.target);
             this.dispatch();
         }
-        this.sQ('form').onclick = ev => ev.stopPropagation();
-        this.sQ('input:not([type])', input => input.onfocus = ev => RunePicker.set(ev));
+        this.el.form.onclick = ev => ev.stopPropagation();
+        this.el.runeStrings.forEach(input => input.onfocus = ev => RunePicker.set(ev));
     }
     randomize () {
         this.el.switches.forEach(input => input.checked = true);
-        this.sQ('input:not([type])', input => {
+        this.el.runeStrings.forEach(input => {
             input.value = new Rune([input.id.split('-')[1]]).stringify().replace(/^\[.\]/, '');
             this.changeRune(input, true);
         });
     }
     switchOff () {
-        this.sQ('[id|=to]').forEach(input => 
-            !input.value && (input.closest('fieldset').Q('[id|=switch]').checked = false));
+        this.el.newRunes.forEach((input, i) => !input.value && (this.el.switches[i].checked = false));
     }
     changeRune (target, sample) {
         let [input, slot, select] = target.type == 'select-one' ?
@@ -85,11 +92,11 @@ class RuneForm extends Form {
     take = diffs => this.el.data.forEach((data, i) => data.value = diffs[i]);
     present (sets, stats) {
         let images = sets => sets.map(s => E('img', {src: `/rune/set/${s}.webp`}));
-        this.sQ(`figure:first-of-type`).replaceChildren(...images(sets.before));
-        this.sQ(`figure:last-of-type`).replaceChildren(...images(sets.after));
+        this.el.figure.before.replaceChildren(...images(sets.before));
+        this.el.figure.after.replaceChildren(...images(sets.after));
         this.getRootNode().host?.present(sets.before.filter(s => Rune.set.buff[s]), sets.after.filter(s => Rune.set.buff[s]));
         stats = stats.after.minus(stats.before);
-        this.sQ(`div data`, data => data.value = stats[data.title] || 0);
+        this.el.present.forEach(data => data.value = stats[data.title] || 0);
     }
     save () {return super.save(':not(:is([name=shape],[id|=to]))');}
     static DOM = () => [

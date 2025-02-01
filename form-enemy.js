@@ -3,27 +3,34 @@ class EnemyForm extends Form {
         super();
         this.shadowRoot.append(
             E('form', [
-                E.radio(EnemyForm.present('general.png', 'General|一般', [0, 0, 0, '']), {name: 'enemy', value: [0, 0, 0, ''], checked: true}),
-                ...E.radios(EnemyForm.enemies.map(([img, name, def, TD]) => ({
-                    children: EnemyForm.present(img, name, def), 
-                    value: def, dataset: {TD: TD ?? 0}
-                }) ), {name: 'enemy'}),
-                ...[...Array(4)].map(_ => E('div', [
+                E('div', [
                     E.prop('SD'),
                     E('b', [E.prop('HS'), E.prop('D')]),
                     E('b', [E.prop('A'), E.prop('HS', {no: true}), E.prop('D')]),
                     E('b', [E.prop('A'), E.prop('HS'), E.prop('D')])
-                ])),
+                ]),
+                E.radio(EnemyForm.present('general.png', 'General|一般', [0, 0, 0, '']), {name: 'enemy', value: [0, 0, 0, ''], checked: true}),
+                E('article', 
+                    E.radios(EnemyForm.enemies.map(([img, name, def, TD]) => ({
+                        children: EnemyForm.present(img, name, def), 
+                        value: def, dataset: {TD: TD ?? 0}
+                    }) ), {name: 'enemy'}),
+                )
             ])
         );
     }
     connectedCallback () {
         super.connectedCallback();
+        this.el = {
+            form: this.sQ('form'),
+            article: this.sQ('article'),
+        };
         this.events();
         this.sQ('data', data => data.value = data.value);
     }
     events () {
-        this.sQ('form').onchange = this.dispatch;
+        this.el.form.onchange = this.dispatch;
+        this.el.article.onwheel = ev => ev.preventDefault() || (this.el.article.scrollLeft += ev.deltaY)    ;
     }
     give () {
         let [SD, HSD, NHSAD, HSAD] = this.sQ(':checked').value.split(',').map(v => parseFloat(v));
