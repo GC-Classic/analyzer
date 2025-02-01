@@ -54,6 +54,8 @@ class EnemyForm extends Form {
         ['cloister.webp', 'Chaotic witch (red shield)|渾沌魔女（紅盾）', [-50, '', 140, 140]],
         ['cloister.webp', 'Duell|杜爾', [200, '', 200, 0]],
         ['cloister.webp', 'Duell (casting failed)|杜爾（施展失敗）', [100, '', 100, 0]],
+        ['abyssal.webp', 'Dominator|統治者', [200, '', 200, 0]],
+        ['abyssal.webp', 'Dominator (casting failed)|統治者（施展失敗）', [0, '', 0, 0]],
         ['nightmare.webp', '4F', [500, '', 500, 0], 30],
         ['nightmare.webp', '4F (MP orbs)|4F（MP 球）', [20, '', 500, 0], 30],
         ['nightmare.webp', '4F (HP orbs)|4F（HP 球）', [500, '', -40, 0], 30]
