@@ -255,9 +255,9 @@ b {
         &::after {
             content:'';
             width:100%;
-            border-style:solid; border-width:1.3em;
+            border-style:solid; border-width:0 1.3em 1.3em 1.3em;
             border-color:transparent transparent var(--fg) transparent;
-            position:absolute; left:0; top:-110%; z-index:-1;
+            position:absolute; left:0; top:0; z-index:-1;
         };
     }
     input[name=boss] {
