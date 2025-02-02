@@ -8,7 +8,7 @@ class RuneForm extends Form {
         super.connectedCallback();
         this.el = {
             form: this.sQ('form'),
-            data: this.sQ('.delta'),
+            data: this.sQ('.post'),
             switches: this.sQ('[id|=switch]'),
             slots: {
                 before: this.sQ('.rune-slot:first-child'),
@@ -102,7 +102,7 @@ class RuneForm extends Form {
     static DOM = () => [
         E('form', [
             ...[0,3,4,5,6].flatMap(s => [
-                E.radio({checked: s === 0, name: 'shape'}, [E('data', {classList: 'delta'})]),
+                E.radio({checked: s === 0, name: 'shape'}, [E('data', {classList: 'post'})]),
                 E('fieldset', [
                     E('div', {classList: 'from'}, [
                         E('input', {id: `from-${s}`, placeholder: 'Equipped'}),

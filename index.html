@@ -25,10 +25,18 @@
                 <span>All content will be saved to your browser automatically.</span>
                 <span>所有內容自動保存至你的瀏覽器。</span>
             <li>
-                <span>If you see a question mark next to the cursor, right-click for an instruction.</span>
-                <span>若看到鼠標旁有問號，點擊右鍵會有提示。</span>
+                <span>If you see a question mark next to the cursor, right-click for an explanation.</span>
+                <span>若看到鼠標旁有問號，點擊右鍵會有解說。</span>
             <li>
-                <span><img src="/rune/set/tolerance.webp"> effect affects character stats, but due to the complications in calculation with a title of vitality boost, it is neglected in this analyzer.</span>
+                <span>
+                    <u>+</u><u>−</u> VS <u>▲</u><u>▼</u>: 𝑎<u> − 𝑏</u> means 𝑎 is the old value and the new value is 𝑎 − 𝑏. 
+                    𝑎<u>▼𝑏</u> means 𝑎 is the new value, which is 𝑏 less than the old value, so the old one is 𝑎 + 𝑏.
+                </span>
+                <span>
+                    <u>+</u><u>−</u> 與 <u>▲</u><u>▼</u>：𝑎<u> − 𝑏</u> 表示 𝑎 是舊値，新値是 𝑎 − 𝑏。𝑎<u>▼𝑏</u> 表示 𝑎 是新値，比舊値下降了 𝑏，故舊値是 𝑎 + 𝑏。
+                </span>
+            <li>
+                <span><img src="/rune/set/tolerance.webp"> effect affects character stats, but due to the complications in calculation with a title of vitality buff, it is neglected in this analyzer.</span>
                 <span><img src="/rune/set/tolerance.webp"> 效果會影響面版數値，但由於與加生命力的頭銜一同裝備時計算較複雜，故此計算器內忽略。</span>
             
     </details>
@@ -128,6 +136,9 @@
     new MutationObserver(Menu.arrange).observe(Q('section'), {childList: true});
 </script>
 <style>
+    header u:nth-of-type(odd) {color:limegreen;}
+    header u:is(:nth-of-type(even),:nth-of-type(n+5)) {color:orangered;}
+    header u:nth-of-type(-n+2) {font-size:1.1rem;line-height:.7;vertical-align: text-top;}
     aside {
         overflow-x:scroll;
         display:grid;

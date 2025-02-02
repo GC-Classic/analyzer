@@ -15,7 +15,7 @@ class BuffForm extends Form {
         this.el = {
             sections: this.sQ('section'),
             form: this.sQ('form'),
-            data: this.sQ('data[title]'),
+            data: this.sQ('.ante'),
             formulae: this.sQ('.formula'),
             items: {
                 before: this.sQ('section:first-of-type :is([type=radio],[type=checkbox])'),
@@ -36,6 +36,10 @@ class BuffForm extends Form {
         }
         this.el.form.onchange = ev => ev.target.type != 'radio' && this.dispatch(); 
     }
+    reset () {
+        this.sQ('[value=after]').checked = true;
+        this.sQ('[name=rune],[name=from-rune]', input => input.checked = false);
+    }
     give () {
         let buffs = {
             before: this.get.stats(this.el.items.before),
@@ -49,12 +53,14 @@ class BuffForm extends Form {
         return {setup, buffs: this.matches('.diff') ? buffs : buffs.after};
     }
     take (stuff) {
-        if (typeof stuff == 'number')
-            return this.el.TD.value = stuff;
-        this.el.rune.forEach(input => input.checked = false);
-        this.el.sections.forEach(sec => stuff.forEach(set =>
-            sec.Q(`label:nth-child(1 of :has([id*=${set}]:not(:checked))) input`).checked = true
-        ));
+        if (Array.isArray(stuff)) {
+            this.el.rune.forEach(input => input.checked = false);
+            this.el.sections.forEach(sec => stuff.forEach(set =>
+                sec.Q(`label:nth-child(1 of :has([id*=${set}]:not(:checked))) input`).checked = true
+            ));
+        } else {
+            Object.entries(stuff).forEach(([name, value]) => this.sQ(`[name=${name}]`)[value === true ? 'checked' : 'value'] = true);
+        }
     }
     sum = (diff) => this.numeric(`[name=${diff ? 'Δ' : ''}attd]`) + 
         (this.el.boss.checked ? this.numeric(`[name=${diff ? 'Δ' : ''}attBoss]`) : 0) + 
@@ -62,9 +68,12 @@ class BuffForm extends Form {
             this.numeric(`[name=${diff ? 'Δ' : ''}sp]`) + this.numeric(`[name=${diff ? 'Δ' : ''}${[...this.classList].find(c => /^sp/.test(c))}]`)
         : 0);
     present = (taint, stats) => {
-        taint && (stats.before = stats.before.add({CAC: -20, CAD: -250, BAD: -50}))
-        taint && (stats.after = stats.after.add({CAC: -20, CAD: -250, BAD: -50}))
-        this.el.data.forEach(data => data.value = stats[data.classList[0]][data.title]);
+        taint && (stats.before = stats.before.add({CAC: -20, CAD: -250, BAD: -50}));
+        taint && (stats.after = stats.after.add({CAC: -20, CAD: -250, BAD: -50}));
+        this.el.data.forEach(data => {
+            data.value = stats.after[data.title];
+            data.nextElementSibling && (data.nextElementSibling.value = stats.after[data.title] - stats.before[data.title]);
+        });
     }
     save () {return super.save(':not([name=time],[name*=rune])');}
     static observer = new MutationObserver(([{target}]) => {
@@ -114,7 +123,7 @@ class BuffForm extends Form {
         E('div', ['HS', 'CAC'].map(p => Form.showDiff(p))),
         E('div', ['CAD', 'BAD'].flatMap(p => [
             E.prop(p), 
-            E('data', {classList: `after boost`, title: p}),
+            E('data', {classList: `ante`, title: p}),
         ]))
     ];
     static labelling = (name, src) => E.checkboxes(Object.entries(BuffForm.buffs[name]).map(([id, value]) => ({

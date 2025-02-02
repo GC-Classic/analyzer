@@ -16,7 +16,7 @@ class Analyzer extends HTMLElement {
             damage_diffs: this.sQ(':is(ul,h3) data'),
             summary: {
                 rune: this.sQ('details:has(rune-form) summary b'),
-                buff: this.sQ(`details:has(buff-form) data`),
+                buff: this.sQ(`details:has(buff-form) .ante`),
                 enemy: this.sQ(`details:has(enemy-form) prop-icon`)
             }
         };
@@ -31,14 +31,12 @@ class Analyzer extends HTMLElement {
         this.sQ('#toggle-mode').oninput = ev => {
             this.mode = ev.target.checked ? 'diff' : 'rune';
             this.switchMode([this.el.buffs, this.el.char], ['diff', 'rune'], this.mode);
+            this.el.buffs.reset();
             let details = this.el.runes.parentElement;
             details.classList.toggle('disabled', ev.target.checked);
             if (this.mode == 'diff') {
                 details.open = false;
                 this.el.buffs.take([details.Q('img:has(~i)') ?? []].flat().map(img => img.alt));
-                this.el.buffs.sQ('[value=after]').checked = true;
-            } else {
-                this.el.buffs.Q('[name=rune]', input => input.checked = false);
             }
             this.calculate();
         }
@@ -65,7 +63,7 @@ class Analyzer extends HTMLElement {
     }
     calculate() {setTimeout(() => {console.log('cal');
         let enemy = this.el.enemy.give();
-        enemy.TD >= 0 && this.el.buffs.take(enemy.TD);
+        this.el.buffs.take(enemy.settings);
         let {setup, buffs} = this.el.buffs.give();
         let {before, diff} = this.el.char.give(this.mode), after;
         let add = (which, ...buffs) => ({...buffs[0], A: buffs[0].A + buffs[1][which].A, HS: buffs[0].HS + buffs[1][which].HS})
@@ -103,7 +101,8 @@ class Analyzer extends HTMLElement {
                 ...after.map(s => E('img', {src: `/rune/set/${s}.webp`})),
             );
         } else {
-            this.el.summary.buff.forEach((data, i) => data.value = [before, after][i]);
+            this.el.summary.buff.value = after;
+            this.el.summary.buff.nextElementSibling.value = after - before;
         }
         this.el.summary.enemy.hidden = !(def?.SD || def?.HSD || def?.NHSAD || def?.HSAD);
         this.sQ('img[alt=TD]').hidden = TD == 0;
@@ -141,7 +140,7 @@ class Analyzer extends HTMLElement {
         E('ul', [...['', 'HS', 'CAD', 'CAD HS', 'BAD', 'BAD HS', 'BAD CAD', 'BAD CAD HS'].map(props => 
             E('li', [
                 ...props ? props.split(' ').map(prop => E.prop(prop)) : [], 
-                E('output'), E('data', {classList: 'delta'})
+                E('output'), E('data', {classList: 'post'})
             ])),
         ]),
         E('div', [
@@ -155,7 +154,7 @@ class Analyzer extends HTMLElement {
             }) ), {name: 'skill'}),
             E('h3', [
                 ...E.bilingual('Average damage', '平均傷害'), 
-                E('output'), E('data', {classList: 'delta'}),
+                E('output'), E('data', {classList: 'post'}),
             ])
         ]),
         E('details', [

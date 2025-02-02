@@ -165,27 +165,35 @@ const Help = {
     ],
     '.formula': [
         `Enter the changes here. Formula supported (e.g. 5.03*2).`,
-        `輸入數值的改變。支援算式（如 5.03*2）`
+        `輸入數値的改變。支援算式（如 5.03*2）`
     ],
-    ':host(char-form) data.boost': [
+    ':host(char-form) [type=number]': [
+        `Enter the stats of your character`,
+        `輸人你角色的能力`
+    ],
+    ':host(char-form) data.ante': [
         `Changes brought by switching runes`,
         `更換符文帶來的變化`
     ],
     'output': [
         `New value, all changes included`,
-        `新的數值，已包括所有改變`
+        `新的數値，已包括所有改變`
     ],
     'output+data': [
         `Change in the new value compared to old value`,
-        `新數值比舊數值的變化`
+        `新數値比舊數値的變化`
     ],
     'img[alt=TD]': [
         `Taint debuff in effect`,
         `侵蝕減益生效中`
     ],
     'b img[alt=TD]~*': [
-        `Changes in damage buff`,
-        `傷害增益的改變`
+        `Updated damage buff`,
+        `最新傷害增益`
+    ],
+    '[name=boss]': [
+        `Check if you have set the enemies below`,
+        `檢查下面對象有否設定`
     ],
     'label:has([name=BAP])': [
         `Please estimate the proportion of back attacks. Default: 20%.`,
@@ -195,7 +203,7 @@ const Help = {
         `Enter extra damage buff here, such as increase in attack in fatal status etc`,
         `輸入其他傷害增益，如 Fatal 時攻擊力提升等`
     ],
-    ':host(rune-form) .delta': [
+    ':host(rune-form) .post': [
         `Change in total attack assuming only this rune is switched while others remain unchanged. Note that set effects are not included`,
         `假設只更換此符文、其他符文保持不變下帶來的戰力改變。注意不包括套裝效果`
     ],
@@ -209,7 +217,7 @@ const Help = {
     ],
     '#secondary+form input': [
         `Enter the number of times reinforced (e.g. +1) or the actual value (e.g. 1.46)`,
-        `輸入強化過的次數（例：+1）或實際數值（例：1.46）`
+        `輸入強化過的次數（例：+1）或實際數値（例：1.46）`
     ],
     ':host(enemy-form) b:nth-of-type(1)': [
         `Defense against the component of hell spear damage`,

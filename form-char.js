@@ -9,7 +9,7 @@ class CharForm extends Form {
             form: this.sQ('form'),
             numbers: this.sQ('input[type=number]'),
             formulae: this.sQ('.formula'),
-            data: this.sQ('.boost'),
+            data: this.sQ('.ante'),
             output: this.sQ('output')
         }
         this.events();
@@ -47,12 +47,12 @@ class CharForm extends Form {
                 step: Stats.decimals.includes(prop) ? .01 : 1,
                 classList: ['attacking', 'damaging'].map(c => CharForm[c].includes(prop) ? c : '').join(' ')
             }), 
-            E('data', {classList: 'boost', title: prop}),
+            E('data', {classList: 'ante', title: prop}),
             E('input', {classList: 'formula', name: `Δ${prop}`, placeholder: '='})
         ]),
         E('h3', [
             ...E.bilingual('Total Attack', '綜合戰鬥力'),
-            E('output', {name: 'TA'}), E('data', {classList: 'delta', title: 'TA'})
+            E('output', {name: 'TA'}), E('data', {classList: 'post', title: 'TA'})
         ])
     ]);
 }

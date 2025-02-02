@@ -82,8 +82,7 @@ class Form extends HTMLElement {
     static showDiff = (prop, TD) => E('b', [
         TD ? E('img', {src: 'buffs/TD.webp'}) : '',
         ...prop == 'damage' ? [E('prop-icon', {prop: 'A'}), E('prop-icon', {prop: 'SA'})] : [E('prop-icon', {prop})],
-        E('data', {classList: `before boost ${prop == 'CAC' ? '' : 'percent'}`, title: prop}),
-        E('i', '⟶'),
-        E('data', {classList: `after boost ${prop == 'CAC' ? '' : 'percent'}`, title: prop}),
+        E('data', {classList: `ante ${prop == 'CAC' ? '' : 'percent'}`, title: prop}),
+        E('data', {classList: `post ${prop == 'CAC' ? '' : 'percent'}`, title: prop})
     ]);
 }
