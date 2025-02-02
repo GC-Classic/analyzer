@@ -59,7 +59,7 @@ class BuffForm extends Form {
                 sec.Q(`label:nth-child(1 of :has([id*=${set}]:not(:checked))) input`).checked = true
             ));
         } else {
-            Object.entries(stuff).forEach(([name, value]) => this.sQ(`[name=${name}]`)[value === true ? 'checked' : 'value'] = true);
+            Object.entries(stuff).forEach(([name, value]) => this.sQ(`[name=${name}]`)[value === true ? 'checked' : 'value'] = value);
         }
     }
     sum = (diff) => this.numeric(`[name=${diff ? 'Δ' : ''}attd]`) + 
@@ -72,7 +72,8 @@ class BuffForm extends Form {
         taint && (stats.after = stats.after.add({CAC: -20, CAD: -250, BAD: -50}));
         this.el.data.forEach(data => {
             data.value = stats.after[data.title];
-            data.nextElementSibling && (data.nextElementSibling.value = stats.after[data.title] - stats.before[data.title]);
+            data.nextElementSibling && (data.nextElementSibling.value = 
+                this.matches('.diff') ? stats.after[data.title] - stats.before[data.title] : '');
         });
     }
     save () {return super.save(':not([name=time],[name*=rune])');}

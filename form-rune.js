@@ -124,7 +124,7 @@ class RuneForm extends Form {
         ]),
         E('div', ['A', 'HS'].map(p => [
             p == 'A' ? [E.prop('A'), E.prop('SA')] : E.prop(p), 
-            E('data', {classList: `boost percent`, title: p}),
+            E('data', {classList: `ante percent`, title: p}),
         ]).flat(9))
     ];
     static getStats = slot => new Stats(slot.firstElementChild?.rune?.stats);
