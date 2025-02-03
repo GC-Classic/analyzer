@@ -112,7 +112,7 @@ Object.assign(RunePicker, {
         this.focus.value = `T${this.get('tier', 'grade')}+${this.get('level', 'primary')}(${this.secondary()}){${this.get('set')}}`;
         let RuneForm = this.focus.getRootNode().host;
         RuneForm.changeRune(this.focus);
-        RuneForm.dispatch();
+        RuneForm.dispatch('calculate');
     },
     get (...which) {
         return which.length > 1 ? which.map(w => this.get(w)).join('') : this.aside.Q(`#${which} :checked`)?.value || '';

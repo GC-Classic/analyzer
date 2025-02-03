@@ -46,12 +46,11 @@ class BuffForm extends Form {
         let setup = this.get.values(this.el.setups);
         return {setup, buffs: this.mode == 'diff' ? buffs : buffs.after};
     }
-    take (stuff) {console.log(stuff);
+    take (stuff) {
         if (Array.isArray(stuff)) {
             this.el.rune.forEach(input => input.checked = false);
             this.el.sections.forEach(sec => stuff.forEach(set =>
-                sec.Q(`label:nth-child(1 of :has([id*=${set}]:not(:checked))) input`).checked = true
-            ));
+                sec.Q(`label:nth-child(1 of :has([id*=${set}]:not(:checked))) input`).checked = true));
         } else {
             Object.entries(stuff).forEach(([name, value]) => 
                 this.sQ(`[name=${name}]`)[typeof value == 'boolean' ? 'checked' : 'value'] = value);
@@ -90,7 +89,7 @@ class BuffForm extends Form {
                     type: 'number', name, 
                     classList: /^att|sp/.test(name) ? 'skill' : 'setup',
                     step: name == 'BAP' || name.includes('Lv') ? 1 : 0.01,
-                    placeholder: name == 'BAP' ? 20 : name.includes('Lv') ? 85 : name == 'attBoss' ? 12.5 : 0,
+                    placeholder: BuffForm.buffs.default[name] ?? 0,
                     input: 'last'
                 }),
                 /^att|sp/.test(name) ? E('input', {classList: 'formula', name: `Δ${name}`, placeholder: '='}) : '',
@@ -147,6 +146,13 @@ class BuffForm extends Form {
             Lv: 'Character level|角色等級',
             TD: 'Taint debuff|侵蝕減益',
             BAP: 'Back proportion|背擊佔比'
+        },
+        default: {
+            sp: 20,
+            attBoss: 12.5,
+            enemyLv: 85,
+            Lv: 85,
+            BAP: 20,
         },
         rune: {
             fury1:{A:5}, fury2:{A:5}, fight1:{A:2.5}, fight2:{A:2.5},
