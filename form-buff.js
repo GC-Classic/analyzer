@@ -106,9 +106,9 @@ class BuffForm extends Form {
                 ...BuffForm.labelling('item', id => `/analyzer/buffs/${id}.png`),
                 ...BuffForm.labelling('rune', id => `/rune/set/${id.replace(/\d/, '')}.webp`),
                 E('b', [
-                    E('i', '+', {style: {fontSize: '2em'}}),
+                    E('u', '+', {style: {fontSize: '2em', marginLeft: '.1em'}}),
                     E('input', {type: 'number', name: 'damage', step: 0.01, placeholder: 0, min: -100}), 
-                    E('i', '%', {style: {fontSize: '1em'}}),
+                    E('u', '%', {style: {fontSize: '1em'}}),
                 ])
             ])
         ]),

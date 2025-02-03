@@ -52,8 +52,6 @@ b {
     &>:not(prop-icon) {display:inline-block;}
     &>* {vertical-align:middle;}
     i {
-        line-height:1;
-        margin:0 .2rem;
         &:only-child {display:none;}
         &:last-child {margin-right:0;}
         &:first-child::before, &:last-child::after {content:'∅';}
@@ -289,6 +287,8 @@ b {
             margin-left:.1em;
             vertical-align:.7em;
         }
+        u {line-height:1em;}
+        input[type=number] {margin:0 .2em;}
     }
     :host(.rune) & label:has([name=rune]) {
         visibility:hidden;
