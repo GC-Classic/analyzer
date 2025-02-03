@@ -46,14 +46,15 @@ class BuffForm extends Form {
         let setup = this.get.values(this.el.setups);
         return {setup, buffs: this.mode == 'diff' ? buffs : buffs.after};
     }
-    take (stuff) {
+    take (stuff) {console.log(stuff);
         if (Array.isArray(stuff)) {
             this.el.rune.forEach(input => input.checked = false);
             this.el.sections.forEach(sec => stuff.forEach(set =>
                 sec.Q(`label:nth-child(1 of :has([id*=${set}]:not(:checked))) input`).checked = true
             ));
         } else {
-            Object.entries(stuff).forEach(([name, value]) => this.sQ(`[name=${name}]`)[value === true ? 'checked' : 'value'] = value);
+            Object.entries(stuff).forEach(([name, value]) => 
+                this.sQ(`[name=${name}]`)[typeof value == 'boolean' ? 'checked' : 'value'] = value);
         }
     }
     sum = (diff) => this.numeric(`[name=${diff ? 'Δ' : ''}attd]`) + 
