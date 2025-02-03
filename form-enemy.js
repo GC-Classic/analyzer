@@ -1,39 +1,23 @@
 class EnemyForm extends Form {
     constructor() {
         super();
-        this.shadowRoot.append(
-            E('form', [
-                E('div', [
-                    E.prop('SD'),
-                    E('b', [E.prop('HS'), E.prop('D')]),
-                    E('b', [E.prop('A'), E.prop('HS', {no: true}), E.prop('D')]),
-                    E('b', [E.prop('A'), E.prop('HS'), E.prop('D')])
-                ]),
-                E.radio(
-                    EnemyForm.present('general.png', 'General|一般', [0, 0, 0, '']), 
-                    {name: 'enemy', value: JSON.stringify({def: [0, 0, 0, '']}), classList: 'unset', checked: true}
-                ),
-                E('article', 
-                    E.radios(EnemyForm.enemies.map(([img, name, def, extra]) => ({
-                        children: EnemyForm.present(img, name, def), 
-                        value: JSON.stringify({def, boss: true, ...extra})
-                    }) ), {name: 'enemy'}),
-                )
-            ])
-        );
+        this.shadowRoot.append(EnemyForm.DOM());
     }
     connectedCallback () {
         super.connectedCallback();
-        this.el = {
-            form: this.sQ('form'),
-            article: this.sQ('article'),
-        };
+        this.el = this.ref();
         this.events();
         this.sQ('data', data => data.value = data.value);
     }
     events () {
-        this.el.form.onchange = this.dispatch;
-        this.el.article.onwheel = ev => ev.preventDefault() || (this.el.article.scrollLeft += ev.deltaY)    ;
+        this.el.form.onchange = () => {
+            this.dispatch('request', 'buffForm', form => form.lock(!this.el.unset.checked));
+            this.dispatch('calculate');
+        }
+        this.el.article.onwheel = ev => {
+            ev.preventDefault();
+            this.el.article.scrollLeft += ev.deltaY;
+        }
     }
     give () {
         let checked = this.sQ(':checked');
@@ -42,6 +26,30 @@ class EnemyForm extends Form {
         let [SD, HSD, NHSAD, HSAD] = def;
         return {SD, HSD, NHSAD, HSAD, settings: others};
     }
+    static DOM = () => 
+        E('form', [
+            E('div', [
+                E.prop('SD'),
+                E('b', [E.prop('HS'), E.prop('D')]),
+                E('b', [E.prop('A'), E.prop('HS', {no: true}), E.prop('D')]),
+                E('b', [E.prop('A'), E.prop('HS'), E.prop('D')])
+            ]),
+            E.radio(
+                EnemyForm.present('general.png', 'General|一般', [0, 0, 0, '']), 
+                {name: 'enemy', value: JSON.stringify({def: [0, 0, 0, '']}), classList: 'unset', checked: true}
+            ),
+            E('article', 
+                E.radios(EnemyForm.enemies.map(([img, name, def, extra]) => ({
+                    children: EnemyForm.present(img, name, def), 
+                    value: JSON.stringify({def, boss: true, ...extra})
+                }) ), {name: 'enemy'}),
+            )
+        ]);
+    ref = () => ({
+        article: this.sQ('article'),
+        form: this.sQ('form'),
+        unset: this.sQ('.unset'),
+    });
     static present = (img, name, def) => [
         E('img', {src: `buffs/${img}`}), 
         ...name.split('|').map(n => E('span', {innerHTML: n.replace(/[(（].+?[)）]/, '<small>$&</small>')})),

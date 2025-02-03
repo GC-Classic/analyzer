@@ -12,18 +12,7 @@ class BuffForm extends Form {
     }
     connectedCallback() {
         super.connectedCallback();
-        this.el = {
-            sections: this.sQ('section'),
-            form: this.sQ('form'),
-            data: this.sQ('.ante'),
-            formulae: this.sQ('.formula'),
-            items: {
-                before: this.sQ('section:first-of-type :is([type=radio],[type=checkbox])'),
-                after: this.sQ('section:last-of-type :is([type=radio],[type=checkbox])')
-            },
-            setupInputs: this.sQ('label .setup'),
-            ...Object.fromEntries(['coef', 'rune', 'boss', 'TD'].map(name => [name, this.sQ(`[name=${name}]`)]))
-        }
+        this.el = this.ref();
         this.events();
         this.classList.add('normal');
     }
@@ -34,23 +23,28 @@ class BuffForm extends Form {
             stored[['normal', 'sp13', 'sp4', 'spA'].findIndex(c => this.classList.contains(c))] = ev.target.value;
             ev.target.dataset.stored = JSON.stringify(stored);
         }
-        this.el.form.onchange = ev => ev.target.type != 'radio' && this.dispatch(); 
+        this.el.form.onchange = ev => ev.target.type != 'radio' && this.dispatch('calculate'); 
     }
     reset () {
         this.sQ('[value=after]').checked = true;
         this.sQ('[name=rune],[name=from-rune]', input => input.checked = false);
+    }
+    lock (lock = true) {
+        this.classList.toggle('lock', lock);
+        this.el.boss.disabled = lock;
+        !lock && (this.el.enemyLv.value = this.el.TD.value = '');
     }
     give () {
         let buffs = {
             before: this.get.stats(this.el.items.before),
             after: this.get.stats(this.el.items.after)
         };
-        this.matches('.diff') && (buffs.before.A += this.sum() + this.numeric('[name=from-damage]'));
-        buffs.after.A += this.sum() + (this.matches('.diff') ? this.sum(true) : 0) + this.numeric('[name=damage]');
+        this.mode == 'diff' && (buffs.before.A += this.sum() + this.numeric('[name=from-damage]'));
+        buffs.after.A += this.sum() + (this.mode == 'diff' ? this.sum(true) : 0) + this.numeric('[name=damage]');
         this.present(this.numeric('[name=TD]') > 0, buffs);
 
-        let setup = this.get.values(this.el.setupInputs);
-        return {setup, buffs: this.matches('.diff') ? buffs : buffs.after};
+        let setup = this.get.values(this.el.setups);
+        return {setup, buffs: this.mode == 'diff' ? buffs : buffs.after};
     }
     take (stuff) {
         if (Array.isArray(stuff)) {
@@ -67,14 +61,11 @@ class BuffForm extends Form {
         (this.matches('.sp13,.sp4,.spA') ? 
             this.numeric(`[name=${diff ? 'Δ' : ''}sp]`) + this.numeric(`[name=${diff ? 'Δ' : ''}${[...this.classList].find(c => /^sp/.test(c))}]`)
         : 0);
-    present = (taint, stats) => {
-        taint && (stats.before = stats.before.add({CAC: -20, CAD: -250, BAD: -50}));
-        taint && (stats.after = stats.after.add({CAC: -20, CAD: -250, BAD: -50}));
-        this.el.data.forEach(data => {
-            data.value = stats.after[data.title];
-            data.nextElementSibling && (data.nextElementSibling.value = 
-                this.matches('.diff') ? stats.after[data.title] - stats.before[data.title] : '');
-        });
+    present (taint, stats) {
+        taint &&= {CAC: -20, CAD: -250, BAD: -50};
+        stats.before = stats.before.add(taint || {});
+        stats.after = stats.after.add(taint || {})
+        this.presentDiff(stats, this.mode == 'diff');
     }
     save () {return super.save(':not([name=time],[name*=rune])');}
     static observer = new MutationObserver(([{target}]) => {
@@ -127,6 +118,18 @@ class BuffForm extends Form {
             E('data', {classList: `ante`, title: p}),
         ]))
     ];
+    ref = () => ({
+        sections: this.sQ('section'),
+        form: this.sQ('form'),
+        present: this.sQ('.ante'),
+        formulae: this.sQ('.formula'),
+        items: {
+            before: this.sQ('section:first-of-type :is([type=radio],[type=checkbox])'),
+            after: this.sQ('section:last-of-type :is([type=radio],[type=checkbox])')
+        },
+        setups: this.sQ('label .setup'),
+        ...Object.fromEntries(['coef', 'rune', 'boss', 'TD', 'enemyLv'].map(name => [name, this.sQ(`[name=${name}]`)]))
+    });
     static labelling = (name, src) => E.checkboxes(Object.entries(BuffForm.buffs[name]).map(([id, value]) => ({
         id, value: JSON.stringify(value), title: value.A || value.HS,
         children: E('img', {src: src(id)})

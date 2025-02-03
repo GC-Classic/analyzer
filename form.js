@@ -18,7 +18,7 @@ class Form extends HTMLElement {
         Help.cursor(this.shadowRoot);
         Help.event(this.shadowRoot, true);
     }
-    dispatch = () => this.dispatchEvent(new CustomEvent('calculate', {composed: true}));
+    dispatch = (type, el, action) => this.dispatchEvent(new CustomEvent(type, {detail: {el, action}, composed: true}));
     numeric (el) {
         el = typeof el == 'string' ? this.sQ(el) : el;
         return parseFloat(el.value || el.placeholder) || 0;
@@ -41,43 +41,65 @@ class Form extends HTMLElement {
         edit: input => input.value = input.dataset.stored ?? ''
     }
     get = {
-        values: (inputs) => inputs.reduce((obj, input) => ({...obj, [
+        values: inputs => inputs.reduce((obj, input) => ({...obj, [
             input.name.includes('Δ') ? input.name.substring(1) : input.name || input.placeholder
         ]: this.numeric(input)}), {}),
-        stats: (inputs) => inputs.reduce((sum, input) => input.checked ? sum.add(JSON.parse(input.value)) : sum, new Stats(Stats.zero()))
+        stats: inputs => inputs.reduce((sum, input) => input.checked ? sum.add(JSON.parse(input.value)) : sum, new Stats(Stats.zero()))
     }
     save (excludes = '') {
-        let findKey = input => input.id || input.name || input.placeholder;
-        let sortOptions = (options, selected) => [...options].map(o => o.value).sort((a, b) => a == selected ? -1 : b == selected ? 1 : 0);
         let content = {
             [this.constructor.name]: this.sQ(`input${excludes},select`).reduce((obj, input) => ({...obj, ...
-                input.type == 'select-one' ? {[findKey(input)]: sortOptions(input.options, input.value)} :
+                input.type == 'select-one' ? {[this.inputs.key(input)]: this.options.sort(input.options, input.value)} :
                 input.dataset.stored ? {[input.name]: input.dataset.stored} :
-                ['number', 'text'].includes(input.type) && input.value !== '' ? {[findKey(input)]: input.value} : 
-                ['radio', 'checkbox'].includes(input.type) && input.checked ? {[findKey(input)]: true} : {}
+                ['number', 'text'].includes(input.type) && input.value !== '' ? {[this.inputs.key(input)]: input.value} : 
+                ['radio', 'checkbox'].includes(input.type) && input.checked ? {[this.inputs.key(input)]: true} : {}
             }), {}) 
         };
         return content;
     }
     fill () {
-        let findInput = key => this.sQ(`input[id='${key}']`) ?? this.sQ(`input[name='${key}']`) ?? this.sQ(`input[placeholder='${key}']`);
-        let createOptions = (options, key) => {
-            this.sQ(`select[name='${key}']`).replaceChildren(...options.map(value => E('option', {value}, value)));
-            findInput(key).value = options[0] ?? '';
-        }
-        let fillFirst = (input, json) => input.value = JSON.parse(json)[0];
         Object.entries(this.saved ?? {}).forEach(([key, value]) => {
-            let input = findInput(key);
+            let input = this.inputs.find(key);
             if (input.length > 1) return;
             value === true ? input.checked = true : 
-            Array.isArray(value) ? createOptions(value, key) : 
+            Array.isArray(value) ? this.options.create(value, key) : 
             typeof value == 'string' ? 
-                /^\[/.test(value) ? (input.dataset.stored = value) && fillFirst(input, value) : input.value = value : null;
+                /^\[/.test(value) ? this.inputs.store(input, value) : input.value = value : null;
 
             input.matches('.formula') && setTimeout(() => input.dispatchEvent(new InputEvent('blur')));
             /^(?:from|to)-\d$/.test(input.id) && this.changeRune(input);
         });
         this.saved = null;
+    }
+    inputs = {
+        find: key => this.sQ(`input[id='${key}']`) ?? this.sQ(`input[name='${key}']`) ?? this.sQ(`input[placeholder='${key}']`),
+        key: input => input.id || input.name || input.placeholder,
+        store: (input, json) => {
+            input.dataset.stored = json;
+            input.value = JSON.parse(json)[0];
+        }
+    }
+    options = {
+        sort: (options, selected) => [...options].map(o => o.value).sort((a, b) => a == selected ? -1 : b == selected ? 1 : 0),
+        create: (options, key) => {
+            this.sQ(`select[name='${key}']`).replaceChildren(...options.map(value => E('option', {value}, value)));
+            this.inputs.find(key).value = options[0] ?? '';
+        }
+    }
+    output = (stats) => Form.output(this.el.output, stats);
+    static output (where, {before, after}) {
+        [where].flat().forEach((output, i) => {
+            output.value = Math.round(after[i] ?? after);
+            output.nextElementSibling.value = (after[i] ?? after) - (before[i] ?? before);
+        });
+    }
+    presentDiff = (stats, diff) => Form.presentDiff(this.el.present, stats, diff);
+    static presentDiff (where, {before, after}, diff) {
+        [where].flat().forEach(data => {
+            data.value = after[data.title] ?? after;
+            diff && data.nextElementSibling && 
+                (data.nextElementSibling.value = (after[data.title] ?? after) - (before[data.title] ?? before));
+        });
     }
     static showDiff = (prop, TD) => E('b', [
         TD ? E('img', {src: 'buffs/TD.webp'}) : '',

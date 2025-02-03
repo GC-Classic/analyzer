@@ -5,19 +5,11 @@ class CharForm extends Form {
     }
     connectedCallback () {
         super.connectedCallback();
-        this.el = {
-            form: this.sQ('form'),
-            numbers: this.sQ('input[type=number]'),
-            formulae: this.sQ('.formula'),
-            data: this.sQ('.ante'),
-            output: this.sQ('output')
-        }
+        this.el = this.ref();
         this.events();
         this.classList.add('rune');
     }
-    events () {
-        this.el.form.onchange = () => this.dispatch();
-    }
+    events = () => this.el.form.onchange = () => this.dispatch('calculate');
     calculate = (runeDiffs) => runeDiffs.map(diff => this.before.add(diff).TA - this.before.TA);
     give (mode) {
         let before = this.get.values(this.el.numbers);
@@ -27,11 +19,7 @@ class CharForm extends Form {
     }
     take (runeDiffSum) {
         Object.entries(runeDiffSum).forEach(([p, v]) => this.sQ(`data[title=${p}]`).value = v);
-        this.present(this.before, this.before.add(runeDiffSum));
-    }
-    present ({TA: before}, {TA: after}) {
-        this.el.output.value = Math.round(after);
-        this.el.output.nextSibling.value = Math.round(after - before);
+        this.output({before: this.before.TA, after: this.before.add(runeDiffSum).TA});
     }
     static attacking = ['A','CAC','CAD','SA','MP','D','V','SD','HP'];
     static damaging = ['A','CAC','CAD','SA','HSC','HS','TR','BAD'];
@@ -55,5 +43,11 @@ class CharForm extends Form {
             E('output', {name: 'TA'}), E('data', {classList: 'post', title: 'TA'})
         ])
     ]);
+    ref = () => ({
+        form: this.sQ('form'),
+        numbers: this.sQ('input[type=number]'),
+        formulae: this.sQ('.formula'),
+        output: this.sQ('output')
+    });
 }
 customElements.define('char-form', CharForm);

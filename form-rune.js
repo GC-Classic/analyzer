@@ -6,22 +6,7 @@ class RuneForm extends Form {
     }
     connectedCallback () {
         super.connectedCallback();
-        this.el = {
-            form: this.sQ('form'),
-            data: this.sQ('.post'),
-            switches: this.sQ('[id|=switch]'),
-            slots: {
-                before: this.sQ('.rune-slot:first-child'),
-                after: this.sQ('.rune-slot:last-child')
-            },
-            figure: {
-                before: this.sQ(`figure:first-of-type`),
-                after: this.sQ(`figure:last-of-type`),
-            },
-            runeStrings: this.sQ('input:not([type])'),
-            newRunes: this.sQ('[id|=to]'),
-            present: this.sQ(`div data`)
-        };
+        this.el = this.ref();
         this.events();
         this.sample ? this.randomize() : this.switchOff();
     }            
@@ -29,20 +14,20 @@ class RuneForm extends Form {
         this.el.form.onchange = ev => {
             if (ev.target.type == 'radio') return RunePicker.aside.classList.remove('remind');
             ['text', 'select-one'].includes(ev.target.type) && this.changeRune(ev.target);
-            this.dispatch();
+            this.dispatch('calculate');
         }
         this.el.form.onclick = ev => ev.stopPropagation();
-        this.el.runeStrings.forEach(input => input.onfocus = ev => RunePicker.set(ev));
+        this.el.runes.strings.forEach(input => input.onfocus = ev => RunePicker.set(ev));
     }
     randomize () {
-        this.el.switches.forEach(input => input.checked = true);
-        this.el.runeStrings.forEach(input => {
+        this.el.runes.switches.forEach(input => input.checked = true);
+        this.el.runes.strings.forEach(input => {
             input.value = new Rune([input.id.split('-')[1]]).stringify().replace(/^\[.\]/, '');
             this.changeRune(input, true);
         });
     }
     switchOff () {
-        this.el.newRunes.forEach((input, i) => !input.value && (this.el.switches[i].checked = false));
+        this.el.runes.after.forEach((input, i) => !input.value && (this.el.runes.switches[i].checked = false));
     }
     changeRune (target, sample) {
         let [input, slot, select] = target.type == 'select-one' ?
@@ -72,7 +57,8 @@ class RuneForm extends Form {
     give () {
         let sets = {
             before: Runes.sets.find(this.el.slots.before.map(s => s.firstElementChild)),
-            after: Runes.sets.find(this.el.switches.map((input, i) => this.el.slots[input.checked ? 'after' : 'before'][i].firstElementChild)),
+            after: Runes.sets.find(this.el.runes.switches.map((input, i) => 
+                this.el.slots[input.checked ? 'after' : 'before'][i].firstElementChild)),
         };
         let buffs = {
             before: new Stats().add(...sets.before.map(s => Rune.set.buff[s])),
@@ -83,7 +69,7 @@ class RuneForm extends Form {
             .add(...sets.after.map(s => Rune.set.effect[s]))
             .minus(...sets.before.map(s => Rune.set.effect[s]));
             
-        let diffs = [...this.el.switches.map((input, i) => input.checked ?
+        let diffs = [...this.el.runes.switches.map((input, i) => input.checked ?
             RuneForm.getStats(this.el.slots.after[i]).minus(RuneForm.getStats(this.el.slots.before[i])) :
             new Stats() 
         ), setEffect];
@@ -91,12 +77,14 @@ class RuneForm extends Form {
     };
     take = diffs => this.el.data.forEach((data, i) => data.value = diffs[i]);
     present (sets, stats) {
+        this.presentSets(sets);
+        this.presentDiff(stats, true);
+    }
+    presentSets (sets) {
         let images = sets => sets.map(s => E('img', {src: `/rune/set/${s}.webp`}));
-        this.el.figure.before.replaceChildren(...images(sets.before));
-        this.el.figure.after.replaceChildren(...images(sets.after));
-        this.getRootNode().host?.present(sets.before.filter(s => Rune.set.buff[s]), sets.after.filter(s => Rune.set.buff[s]));
-        stats = stats.after.minus(stats.before);
-        this.el.present.forEach(data => data.value = stats[data.title] || 0);
+        this.el.figures.before.replaceChildren(...images(sets.before));
+        this.el.figures.after.replaceChildren(...images(sets.after));
+        this.dispatch('request', null, analyzer => analyzer.present(sets.before.filter(s => Rune.set.buff[s]), sets.after.filter(s => Rune.set.buff[s])));
     }
     save () {return super.save(':not(:is([name=shape],[id|=to]))');}
     static DOM = () => [
@@ -125,8 +113,27 @@ class RuneForm extends Form {
         E('div', ['A', 'HS'].map(p => [
             p == 'A' ? [E.prop('A'), E.prop('SA')] : E.prop(p), 
             E('data', {classList: `ante percent`, title: p}),
+            E('data', {classList: `post percent`, title: p}),
         ]).flat(9))
     ];
+    ref = () => ({
+        form: this.sQ('form'),
+        data: this.sQ('label .post'),
+        slots: {
+            before: this.sQ('.rune-slot:first-child'),
+            after: this.sQ('.rune-slot:last-child')
+        },
+        figures: {
+            before: this.sQ(`figure:first-of-type`),
+            after: this.sQ(`figure:last-of-type`),
+        },
+        runes: {
+            strings: this.sQ('input:not([type])'),
+            switches: this.sQ('[id|=switch]'),
+            after: this.sQ('[id|=to]'),
+        },
+        present: this.sQ(`div .ante`)
+    });
     static getStats = slot => new Stats(slot.firstElementChild?.rune?.stats);
     static parse = (input, shape) => { 
         let em = input.parentElement.Q('em');

@@ -54,8 +54,11 @@ b {
     i {
         line-height:1;
         margin:0 .2rem;
-        &:last-child {margin-right:0;}
         &:only-child {display:none;}
+        &:last-child {margin-right:0;}
+        &:first-child::before, &:last-child::after {content:'∅';}
+        &:first-child::before {margin-right:.5em;}
+        &:last-child::after {margin-left:.5em;}
     }
 }
 :is(prop-icon,i)+data {
@@ -298,6 +301,7 @@ b {
 
         input {width:2.8em;}
     }
+    :host(.lock) & label:has([name=attBoss],[name=enemyLv],[name=TD]) span {color:violet;}
 }
 :host(buff-form.rune) b:has([prop=HS]) {display:none;}
 :host(rune-form) form {

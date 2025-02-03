@@ -5,51 +5,33 @@ class Analyzer extends HTMLElement {
         this.saved = saved ? (({CharForm, BuffForm, RuneForm, ...others}) => others)(saved) : false;
     }
     connectedCallback() {
-        this.el = {
-            name: this.sQ('[name=name]'),
-            color: this.sQ('[type=color]'),
-            char: this.sQ('char-form'),
-            buffs: this.sQ('buff-form'),
-            runes: this.sQ('rune-form'),
-            enemy: this.sQ('enemy-form'),
-            damages: this.sQ(':is(ul,h3) output'),
-            damage_diffs: this.sQ(':is(ul,h3) data'),
-            summary: {
-                rune: this.sQ('details:has(rune-form) summary b'),
-                buff: this.sQ(`details:has(buff-form) .ante`),
-                enemy: this.sQ(`details:has(enemy-form) prop-icon`)
-            }
-        };
+        Analyzer.forms.forEach(f => this[f] = this.sQ(f.replace(/[A-Z]/, c => `-${c.toLowerCase()}`)));
+        this.el = this.ref();
         this.events();
         this.saved && this.fill();
         this.el.name.style.background = this.el.color.value;
-        this.switchMode([this.el.buffs, this.el.char], ['diff', 'rune'], this.mode = 'rune');
+        this.switchMode([this.buffForm, this.charForm], ['diff', 'rune'], this.mode = 'rune');
         this.calculate();
     }
     events() {
         Data.observe(this.shadowRoot);
         this.sQ('#toggle-mode').oninput = ev => {
             this.mode = ev.target.checked ? 'diff' : 'rune';
-            this.switchMode([this.el.buffs, this.el.char], ['diff', 'rune'], this.mode);
-            this.el.buffs.reset();
-            let details = this.el.runes.parentElement;
+            this.switchMode([this.buffForm, this.charForm], ['diff', 'rune'], this.mode);
+            this.buffForm.reset();
+            let details = this.runeForm.parentElement;
             details.classList.toggle('disabled', ev.target.checked);
             if (this.mode == 'diff') {
                 details.open = false;
-                this.el.buffs.take([details.Q('img:has(~i)') ?? []].flat().map(img => img.alt));
+                this.buffForm.take([details.Q('img:has(~i)') ?? []].flat().map(img => img.alt));
             }
             this.calculate();
         }
         this.sQ('div:has([name=skill]').onchange = ev => {
             if (!ev.target.checked) return;
-            this.switchMode(this.el.buffs, ['normal', 'sp13', 'sp4', 'spA'], ev.target.value);
+            this.switchMode(this.buffForm, ['normal', 'sp13', 'sp4', 'spA'], ev.target.value);
             this.calculate();
         }
-        this.addEventListener('calculate', () => {
-            this.calculate();
-            this.save();
-        });
-        this.addEventListener('help', ({detail}) => dispatchEvent(new CustomEvent('help', {detail})));
         Object.assign(this.sQ('#pref'), {
             onchange: ev => {
                 this.el.name.style.background = ev.target.value;
@@ -58,21 +40,24 @@ class Analyzer extends HTMLElement {
             },
             onclick: ({target: {id}}) => id == 'delete' ? this.delete() : id == 'scroll' ? scrollTo(0,0) : null,
         });
+        this.addEventListener('calculate', () => [this.calculate(), this.save()]);
+        this.addEventListener('request', ({detail}) => detail.action(detail.el ? this[detail.el] : this));
+        this.addEventListener('help', ({detail}) => dispatchEvent(new CustomEvent('help', {detail})));
         Help.cursor(this.shadowRoot);
         Help.event(this.shadowRoot);
     }
     calculate() {setTimeout(() => {console.log('cal');
-        let enemy = this.el.enemy.give();
-        this.el.buffs.take(enemy.settings);
-        let {setup, buffs} = this.el.buffs.give();
-        let {before, diff} = this.el.char.give(this.mode), after;
+        let enemy = this.enemyForm.give();
+        this.buffForm.take(enemy.settings);
+        let {setup, buffs} = this.buffForm.give();
+        let {before, diff} = this.charForm.give(this.mode), after;
         let add = (which, ...buffs) => ({...buffs[0], A: buffs[0].A + buffs[1][which].A, HS: buffs[0].HS + buffs[1][which].HS})
 
         if (this.mode == 'rune') {
-            let runes = this.el.runes.give();
-            let eachDiffTA = this.el.char.calculate(runes.diffs ?? []);
-            this.el.runes.take(eachDiffTA); 
-            this.el.char.take(new Stats().add(...runes.diffs ?? []));
+            let runes = this.runeForm.give();
+            let eachDiffTA = this.charForm.calculate(runes.diffs ?? []);
+            this.runeForm.take(eachDiffTA); 
+            this.charForm.take(new Stats().add(...runes.diffs ?? []));
             
             after = before.add(...runes.diffs ?? []);
             buffs = {
@@ -81,38 +66,33 @@ class Analyzer extends HTMLElement {
             };
         } else {
             after = before.add(diff);
-            this.el.char.present(before, after);
+            this.charForm.output({before: before.TA, after: after.TA});
         }
         this.present(buffs.before.A, buffs.after.A, enemy, setup.TD);
 
         let type = this.sQ('input[name=skill]:checked').value;
         before = Damage({...before, ...setup, buffs: buffs.before}, enemy, type);
         after = Damage({...after, ...setup, buffs: buffs.after}, enemy, type);
-        after.forEach((value, i) => {
-            this.el.damages[i].value = value ? value.toFixed(0) : null;
-            this.el.damage_diffs[i].value = value ? (value - before[i]).toFixed(0) : null;
-        }); });
+        Form.output(this.el.damages, {before, after}); });
     }
     present (before, after, def, TD) {
-        if (Array.isArray(before)) {
-            this.el.summary.rune.replaceChildren(
-                ...before.map(s => E('img', {src: `/rune/set/${s}.webp`})),
-                E('i', '⟶'),
-                ...after.map(s => E('img', {src: `/rune/set/${s}.webp`})),
-            );
-        } else {
-            this.el.summary.buff.value = after;
-            this.el.summary.buff.nextElementSibling.value = after - before;
-        }
-        this.el.summary.enemy.hidden = !(def?.SD || def?.HSD || def?.NHSAD || def?.HSAD);
+        Array.isArray(before) ? this.presentSets(before, after) : Form.presentDiff(this.el.present, {before, after}, true);
+        this.el.summary.enemy.style.color = def?.SD || def?.HSD || def?.NHSAD || def?.HSAD ? 'violet' : 'inherit';
         this.sQ('img[alt=TD]').hidden = TD == 0;
+    }
+    presentSets (before, after) {
+        this.el.summary.rune.replaceChildren(
+            ...before.map(s => E('img', {src: `/rune/set/${s}.webp`})),
+            E('i', '⟶'),
+            ...after.map(s => E('img', {src: `/rune/set/${s}.webp`})),
+        );
     }
     save () {setTimeout(() => {console.log('save');
         let content = {
             name: this.el.name.value,
             color: this.el.color.value,
         };
-        content = ['char', 'buffs', 'runes'].reduce((obj, form) => ({...obj, ...this.el[form].save()}), content);
+        content = Analyzer.forms.reduce((obj, f) => ({...obj, ...f == 'enemyForm' ? {} : this[f].save()}), content);
         DB.put('characters', this.id ? [parseInt(this.id), content] : content)
             .then(ev => this.id = ev.target.result).catch(er => Q('header p').textContent = er);
     })}
@@ -123,7 +103,7 @@ class Analyzer extends HTMLElement {
     delete () {
         (this.id ? DB.delete('characters', parseInt(this.id)) : Promise.resolve()).then(() => this.remove());
     }
-    switchMode = (els, from, to) => [els].flat().forEach(el => (el.classList.remove(...from), el.classList.add(to)));
+    switchMode = (els, from, to) => [els].flat().forEach(el => (el.classList.remove(...from), el.classList.add(el.mode = to)));
     static DOM = (saved = {}) => [
         E('link', {rel: 'stylesheet', href: '/common.css'}),
         E('link', {rel: 'stylesheet', href: 'analyzer.css'}),
@@ -170,11 +150,21 @@ class Analyzer extends HTMLElement {
             ]), new RuneForm(saved.RuneForm)
         ]),
         E('details', [
-            E('summary', [
-                ...E.bilingual('Enemy (Partial)', '對象（部分）'),
-                E('b', [E.prop('D')]),
-            ]), E('enemy-form')]),
+            E('summary', E.bilingual('Enemy (Partial)', '對象（部分）')), 
+            E('enemy-form')
+        ]),
     ];
+    ref = () => ({
+        name: this.sQ('[name=name]'),
+        color: this.sQ('[type=color]'),
+        damages: this.sQ(':is(ul,h3) output'),
+        present: this.sQ(`details:has(buff-form) .ante`),
+        summary: {
+            rune: this.sQ('details:has(rune-form) summary b'),
+            enemy: this.sQ(`details:has(enemy-form) summary`)
+        }
+    })
+    static forms = ['charForm', 'buffForm', 'runeForm', 'enemyForm'];
 }
 Analyzer.add = data => {
     typeof data == 'boolean' && (data = null);
