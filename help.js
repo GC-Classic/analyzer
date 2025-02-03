@@ -26,7 +26,7 @@ const Damage = ({A, SA, CAC, CAD, BAP, BAD, HSC, HS: HSD, TD, TR, Lv, enemyLv, c
             base,        null, base * CA.m,        null, 
             base * BA.m, null, base * BA.m * CA.m, null, 
         ];
-    } else if (def.HSD >= 0) {
+    } else if (def.HSD) {
         base /= (1 + def.NHSAD);
         matrix = [
             base,        base + HS.d,        base * CA.m,        base * CA.m + HS.d, 
