@@ -11,9 +11,9 @@ class CharForm extends Form {
     }
     events = () => this.el.form.onchange = () => this.dispatch('calculate');
     calculate = (runeDiffs) => runeDiffs.map(diff => this.before.add(diff).TA - this.before.TA);
-    give (mode) {
+    give () {
         let before = this.get.values(this.el.numbers);
-        let diff = mode != 'diff' ? null : this.get.values(this.el.formulae);
+        let diff = this.mode != 'diff' ? null : this.get.values(this.el.formulae);
         this.before = new Stats(before);
         return {before: this.before, diff};
     }

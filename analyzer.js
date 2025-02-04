@@ -10,14 +10,15 @@ class Analyzer extends HTMLElement {
         this.events();
         this.saved && this.fill();
         this.el.name.style.background = this.el.color.value;
-        this.switchMode([this.buffForm, this.charForm], ['diff', 'rune'], this.mode = 'rune');
+        this.mode = 'rune';
+        this.switchMode([this.buffForm, this.charForm], Analyzer.modes);
         this.calculate();
     }
     events() {
         Data.observe(this.shadowRoot);
         this.sQ('#toggle-mode').oninput = ev => {
             this.mode = ev.target.checked ? 'diff' : 'rune';
-            this.switchMode([this.buffForm, this.charForm], ['diff', 'rune'], this.mode);
+            this.switchMode([this.buffForm, this.charForm], Analyzer.modes);
             this.buffForm.reset();
             let details = this.runeForm.parentElement;
             details.classList.toggle('disabled', ev.target.checked);
@@ -50,7 +51,7 @@ class Analyzer extends HTMLElement {
         let enemy = this.enemyForm.give();
         this.buffForm.take(enemy.settings);
         let {setup, buffs} = this.buffForm.give();
-        let {before, diff} = this.charForm.give(this.mode), after;
+        let {before, diff} = this.charForm.give(), after;
         let add = (which, ...buffs) => ({...buffs[0], A: buffs[0].A + buffs[1][which].A, HS: buffs[0].HS + buffs[1][which].HS})
 
         if (this.mode == 'rune') {
@@ -103,7 +104,12 @@ class Analyzer extends HTMLElement {
     delete () {
         (this.id ? DB.delete('characters', parseInt(this.id)) : Promise.resolve()).then(() => this.remove());
     }
-    switchMode = (els, from, to) => [els].flat().forEach(el => (el.classList.remove(...from), el.classList.add(el.mode = to)));
+    switchMode = (els, from, to = this.mode) => [els].flat().forEach(el => {
+        el.classList.remove(...from);
+        el.classList.add(to);
+        Analyzer.modes.includes(to) && (el.mode = to);
+    });
+    static modes = ['diff', 'rune'];
     static DOM = (saved = {}) => [
         E('link', {rel: 'stylesheet', href: '/common.css'}),
         E('link', {rel: 'stylesheet', href: 'analyzer.css'}),
