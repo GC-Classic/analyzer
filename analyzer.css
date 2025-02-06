@@ -64,7 +64,7 @@ b {
     border-bottom:.05rem solid var(--fg);
     text-align:center;
 }
-:host(:not(.delete)) #delete,:host(.delete) #scroll,
+:host(:not(.delete)) #delete,:host(.delete) [type=color],
 :host(.rune) .before~* {
     display:none;
 }
@@ -179,7 +179,7 @@ b {
     }
 }
 :host(char-form) form {
-    gap:.1rem .2rem; justify-content:center;
+    gap:.1rem .15rem; justify-content:center;
     margin:0 0 .5em -.1em;
 
     :host(.diff) & {grid-template:auto / repeat(4,1fr);}
@@ -225,7 +225,7 @@ b {
     }
 }
 :host(buff-form) form {
-    grid-template-columns:1fr auto 1.02fr auto; gap:.1rem .2rem;
+    grid-template-columns:1fr auto 1.02fr auto; gap:.1rem .15rem;
     margin-top:.25em;
 
     >label {
@@ -258,7 +258,7 @@ b {
             width:100%;
             border-style:solid; border-width:0 1.3em 1.3em 1.3em;
             border-color:transparent transparent var(--fg) transparent;
-            position:absolute; left:0; top:0; z-index:-1;
+            position:absolute; left:0; top:-.05rem; z-index:-1;
         };
     }
     input[name=boss] {
@@ -299,7 +299,7 @@ b {
     :host(.diff) & label:has(+.formula) {
         grid-column:auto / span 1;
 
-        input {width:2.8em;}
+        input {width:2.9em;}
     }
     :host(.lock) & label:has([name=attBoss],[name=enemyLv],[name=TD]) span {color:violet;}
 }
@@ -379,7 +379,7 @@ b {
 }
 :host(enemy-form) {
     form {
-        display:flex; gap:.2rem;
+        display:flex; gap:.15rem;
 
         >* {align-self:end;}
 

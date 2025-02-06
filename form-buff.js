@@ -32,7 +32,7 @@ class BuffForm extends Form {
     lock (lock = true) {
         this.classList.toggle('lock', lock);
         this.el.boss.disabled = lock;
-        !lock && (this.el.enemyLv.value = this.el.TD.value = '');
+        !lock && (this.el.boss.checked = this.el.enemyLv.value = this.el.TD.value = '');
     }
     give () {
         let buffs = {

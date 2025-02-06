@@ -114,10 +114,10 @@ class Analyzer extends HTMLElement {
         E('link', {rel: 'stylesheet', href: '/common.css'}),
         E('link', {rel: 'stylesheet', href: 'analyzer.css'}),
         E('form', {id: 'pref'}, [
-            E('button', {type: 'button', classList: 'action', id: 'delete'}, E.bilingual('Delete', '刪除')),
             E('button', {type: 'button', id: 'scroll'}, '🔝'),
             E('input', {name: 'name'}),
             E('input', {type: 'color', value: '#0000ff'}),
+            E('button', {type: 'button', classList: 'action', id: 'delete'}, E.bilingual('Delete', '刪除')),
             ...E.bilingual('Rune', '符文'), 
             E.checkbox({id: 'toggle-mode'}),
             ...E.bilingual('Diff', '差異')
