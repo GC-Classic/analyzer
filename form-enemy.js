@@ -56,7 +56,7 @@ class EnemyForm extends Form {
         ...def.map(value => E('data', {classList: 'def ante percent', value})), 
     ];
     static enemies = [
-        ['berkas.webp', 'Tail|尾', [795, 200, 795, '']],
+        ['berkas.webp', 'Tail|尾', [1400, 200, 1400, '']],
         ['berkas.webp', 'Legs|腳', [400, 200, 400, '']],
         ['berkas.webp', 'Torso|身', [200, 200, 200, '']],
         ['judgement.webp', '[Lv. 60] Legs|[Lv. 60] 腳', [811.47, (1/.7-1)*100, 900, ''], {enemyLv: 60}],
