@@ -11,7 +11,7 @@ class EnemyForm extends Form {
     }
     events () {
         this.el.form.onchange = () => {
-            this.dispatch('request', 'buffForm', form => form.lock(!this.el.unset.checked));
+            this.dispatch('request', 'buffForm', form => form.unlock());
             this.dispatch('calculate');
         }
         this.el.article.onwheel = ev => {
@@ -22,7 +22,7 @@ class EnemyForm extends Form {
     give () {
         let checked = this.sQ(':checked');
         let {def, ...others} = JSON.parse(checked.value);
-        !checked.matches('.unset') && (others.TD ||= '', others.enemyLv ||= '');
+        !checked.matches('.unset') && (others.TD ||= 0, others.enemyLv ||= 85);
         let [SD, HSD, NHSAD, HSAD] = def;
         return {SD, HSD, NHSAD, HSAD, settings: others};
     }
@@ -59,8 +59,8 @@ class EnemyForm extends Form {
         ['berkas.webp', 'Tail|尾', [1400, 200, 1400, '']],
         ['berkas.webp', 'Legs|腳', [400, 200, 400, '']],
         ['berkas.webp', 'Torso|身', [200, 200, 200, '']],
-        ['judgement.webp', '[Lv. 60] Legs|[Lv. 60] 腳', [811.47, (1/.7-1)*100, 900, ''], {enemyLv: 60}],
-        ['judgement.webp', '[Lv. 60] Torso|[Lv. 60] 身', [82.29, (1/.7-1)*100, 100, ''], {enemyLv: 60}],
+        ['judgement.webp', '[Lv. 60] Legs|[Lv. 60] 腳', [811.47, (1/.7-1)*100, 900, ''], {enemyLv: 60, Lv: 85}],
+        ['judgement.webp', '[Lv. 60] Torso|[Lv. 60] 身', [82.29, (1/.7-1)*100, 100, ''], {enemyLv: 60, Lv: 85}],
         ['cloister.webp', 'Rofnus (Not healing)|洛普努斯（不回血時）', [30, 30, 30, ''], {boss: false}],
         ['cloister.webp', 'Chaotic witch|渾沌魔女', [-20, '', -20, 0], {boss: false}],
         ['cloister.webp', 'Chaotic witch (purple shield)|渾沌魔女（紫盾）', [200, '', -60, -60], {boss: false}],

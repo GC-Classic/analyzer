@@ -29,10 +29,9 @@ class BuffForm extends Form {
         this.sQ('[value=after]').checked = true;
         this.sQ('[name=rune],[name=from-rune]', input => input.checked = false);
     }
-    lock (lock = true) {
-        this.classList.toggle('lock', lock);
-        this.el.boss.disabled = lock;
-        !lock && (this.el.boss.checked = this.el.enemyLv.value = this.el.TD.value = '');
+    unlock () {
+        this.el.boss.checked = this.el.enemyLv.value = this.el.TD.value = '';
+        this.sQ('.lock', label => label.classList.remove('lock'));
     }
     give () {
         let buffs = {
@@ -52,8 +51,10 @@ class BuffForm extends Form {
             this.el.sections.forEach(sec => stuff.forEach(set =>
                 sec.Q(`label:nth-child(1 of :has([id*=${set}]:not(:checked))) input`).checked = true));
         } else {
-            Object.entries(stuff).forEach(([name, value]) => 
-                this.sQ(`[name=${name}]`)[typeof value == 'boolean' ? 'checked' : 'value'] = value);
+            Object.entries(stuff).forEach(([name, value]) => {
+                this.el[name].labels[0].classList.add('lock');
+                this.el[name][typeof value == 'boolean' ? 'checked' : 'value'] = value;
+            });
         }
     }
     sum = (diff) => this.numeric(`[name=${diff ? 'Δ' : ''}attd]`) + 
@@ -128,7 +129,7 @@ class BuffForm extends Form {
             after: this.sQ('section:last-of-type :is([type=radio],[type=checkbox])')
         },
         setups: this.sQ('label .setup'),
-        ...Object.fromEntries(['coef', 'rune', 'boss', 'TD', 'enemyLv'].map(name => [name, this.sQ(`[name=${name}]`)]))
+        ...Object.fromEntries(['coef', 'rune', 'boss', 'TD', 'enemyLv', 'Lv'].map(name => [name, this.sQ(`[name=${name}]`)]))
     });
     static labelling = (name, src) => E.checkboxes(Object.entries(BuffForm.buffs[name]).map(([id, value]) => ({
         id, value: JSON.stringify(value), title: value.A || value.HS,

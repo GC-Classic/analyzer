@@ -301,7 +301,8 @@ b {
 
         input {width:2.9em;}
     }
-    :host(.lock) & label:has([name=attBoss],[name=enemyLv],[name=TD]) span {color:violet;}
+    label.lock span {color:violet;}
+    label.lock [name=boss] {accent-color:violet;}
 }
 :host(buff-form.rune) b:has([prop=HS]) {display:none;}
 :host(rune-form) form {
