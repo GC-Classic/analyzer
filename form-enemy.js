@@ -61,7 +61,7 @@ class EnemyForm extends Form {
         ['berkas.webp', 'Torso|身', [200, 200, 200, '']],
         ['judgement.webp', 'Legs|腳', [551.045, 3/7*100, 43/7*100, '']],
         ['judgement.webp', 'Torso|身', [30.2084, 3/7*100, 3/7*100, '']],
-        ['cloister.webp', 'Rofnus (Not healing)|洛普努斯（不回血時）', [30, 30, 30, ''], {boss: false}],
+        ['cloister.webp', 'Rofnus (Not healing)|洛普努斯（不回血時）', [30, '', 30, 0], {boss: false}],
         ['cloister.webp', 'Chaotic witch|渾沌魔女', [-20, '', -20, 0], {boss: false}],
         ['cloister.webp', 'Chaotic witch (purple shield)|渾沌魔女（紫盾）', [200, '', -60, -60], {boss: false}],
         ['cloister.webp', 'Chaotic witch (red shield)|渾沌魔女（紅盾）', [-50, '', 140, 140], {boss: false}],
