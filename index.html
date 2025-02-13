@@ -22,28 +22,32 @@
         <summary><span>Reminders</span><span>提示</span></summary>
         <ul>
             <li>
-                <span>All content will be saved to your browser automatically.</span>
-                <span>所有內容自動保存至你的瀏覽器。</span>
+                <span>All content will be saved to your current browser automatically.</span>
+                <span>所有內容自動保存至你正使用的瀏覽器。</span>
             <li>
                 <span>If you see a question mark next to the cursor, right-click for an explanation.</span>
                 <span>若看到鼠標旁有問號，點擊右鍵會有解說。</span>
             <li>
+                <span>Rounding errors will accumulate, resulting in the final calculated value being different from the in-game value, usually within ±50.</span>
+                <span>捨入誤差會累積，導致最後計算出的數值與遊戲內的不同，通常在 ±50 內。</span>
+            <li>
                 <span>
-                    <u>+</u><u>−</u> VS <u>▲</u><u>▼</u>: 𝑎<u> − 𝑏</u> means 𝑎 is the old value and the new value is 𝑎 − 𝑏. 
-                    𝑎<u>▼𝑏</u> means 𝑎 is the new value, which is 𝑏 less than the old value, so the old one is 𝑎 + 𝑏.
+                    <u class="posi">+</u><u class="nega">−</u> VS <u class="posi">▲</u><u class="nega">▼</u>: 𝑎<u class="nega"> − 𝑏</u> means 𝑎 is the old value and the new value is 𝑎 − 𝑏. 
+                    𝑎<u class="nega">▼𝑏</u> means 𝑎 is the new value, which is 𝑏 less than the old value, so the old one is 𝑎 + 𝑏.
                 </span>
                 <span>
-                    <u>+</u><u>−</u> 與 <u>▲</u><u>▼</u>：𝑎<u> − 𝑏</u> 表示 𝑎 是舊値，新値是 𝑎 − 𝑏。𝑎<u>▼𝑏</u> 表示 𝑎 是新値，比舊値下降了 𝑏，故舊値是 𝑎 + 𝑏。
+                    <u class="posi" style="font-size:1.5em;line-height:0;">+</u><u class="nega" style="font-size:1.5em;line-height:0;">−</u> 與 <u class="posi">▲</u><u class="nega">▼</u>：𝑎<u class="nega"> − 𝑏</u> 表示 𝑎 是舊値，新値是 𝑎 − 𝑏。
+                    𝑎<u class="nega">▼𝑏</u> 表示 𝑎 是新値，比舊値下降了 𝑏，故舊値是 𝑎 + 𝑏。
                 </span>
+            <li>
+                <span><img src="/rune/set/tolerance.webp"> effect affects character stats, but due to the complications in calculation with a title of vitality buff, it is neglected in this analyzer.</span>
+                <span><img src="/rune/set/tolerance.webp"> 效果會影響面版數値，但由於與加生命力的頭銜一同裝備時計算較複雜，故此計算器內忽略。</span>      
             <li>
                 <span>In-game bug: Any fatal-only effect of epic reinforcement stone is only valid in the same stage of reaching the fatal status. It disappears after moving to the next stage.</span>
                 <span>遊戲內 Bug：Fatal 型的史詩強化石效果只在達至 Fatal 的同一關卡有效，移到下一關後即告失效。</span>
             <li>
                 <span>In-game bug: If you are not the host and are enjoying shared buffs from other team members, epic reinforcememnt stone on the secondary weapon will be treated as a normal stone.</span>
-                <span>遊戲內 Bug：若你不是室長而又享用其他隊員的共享增益，副武器的史詩強化石會當成一般強化石計算。</span>
-            <li>
-                <span><img src="/rune/set/tolerance.webp"> effect affects character stats, but due to the complications in calculation with a title of vitality buff, it is neglected in this analyzer.</span>
-                <span><img src="/rune/set/tolerance.webp"> 效果會影響面版數値，但由於與加生命力的頭銜一同裝備時計算較複雜，故此計算器內忽略。</span>      
+                <span>遊戲內 Bug：若你不是室長而又享用其他隊員的共享增益，副武器的史詩強化石會當成一般強化石計算。</span>    
     </details>
     <div>
         <nav>
@@ -115,7 +119,7 @@
 
 <script>
     onhashchange(location.hash.substring(1) || 'en');
-    Promise.all(['char-form', 'buff-form', 'rune-form', 'enemy-form'].map(el => customElements.whenDefined(el))).then(() => Q('main').hidden = false);
+    Promise.all(['power-analyzer', 'char-form', 'buff-form', 'rune-form', 'enemy-form'].map(el => customElements.whenDefined(el))).then(() => Q('main').hidden = false);
     DB.show('characters');
     RunePicker();
     Help.event();
