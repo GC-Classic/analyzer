@@ -61,7 +61,7 @@
                 <input type="checkbox" name="action" id="delete">
                 <label for="delete"><span>Delete char</span><span>刪除角色</span></label>
             <li>
-                <ul><li></ul>
+                <ol><li></ol>
                 <label for="jump"><span>Jump to</span><span>跳至</span></label>
         </menu>
     </div>
@@ -83,7 +83,7 @@
         <span>Secondary</span><span>副屬性</span>
         <form id="secondary"></form>
         <form>
-            <input><input><input>
+            <input placeholder="+0/1.98"><input placeholder="+0/1.98"><input placeholder="+0/1.98">
         </form>
     </div>
     <div>
@@ -115,24 +115,23 @@
 
 <script>
     onhashchange(location.hash.substring(1) || 'en');
-    customElements.whenDefined('power-analyzer').then(() => Q('main').hidden = false);
+    Promise.all(['char-form', 'buff-form', 'rune-form', 'enemy-form'].map(el => customElements.whenDefined(el))).then(() => Q('main').hidden = false);
     DB.show('characters');
     RunePicker();
     Help.event();
     Help.cursor();
-    addEventListener('help', (ev) => ev.stopPropagation() ?? Help.show(ev.detail));
+    addEventListener('help', ev => ev.stopPropagation() ?? Help.show(ev.detail));
 
     Menu();
     Q('input[name=action]', input => input.onchange = ev => Analyzer[input.id](ev.target.checked));
     Menu.action = dragged => Q(`power-analyzer:nth-child(${dragged.Q('input:checked').value})`).scrollIntoView();
     Menu.arrange = () => {
-        Q('menu>li:last-child ul').replaceChildren(
+        Q('menu>li:last-child ol').replaceChildren(
             ...[...Q('section').children].reverse().map((cal, i, ar) => {
                 let li = E('li', [E('label', [
                     E('input', {type: 'radio', name: 'char', value: ar.length - i}), 
-                    E('span', '●', {classList: 'always'})
-                ])]);
-                li.style.backgroundColor = cal.sQ('input[type=color]').value;
+                    E('u', cal.el.name.value)
+                ])], {style: {backgroundColor: cal.el.color.value}});
                 return li;
             })
         );
@@ -141,9 +140,6 @@
     new MutationObserver(Menu.arrange).observe(Q('section'), {childList: true});
 </script>
 <style>
-    header u:nth-of-type(odd) {color:limegreen;}
-    header u:is(:nth-of-type(even),:nth-of-type(n+5)) {color:orangered;}
-    header u:nth-of-type(-n+2) {font-size:1.1rem;line-height:.7;vertical-align: text-top;}
     aside {
         overflow-x:scroll;
         display:grid;

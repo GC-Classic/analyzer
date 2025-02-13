@@ -25,7 +25,7 @@ class CharForm extends Form {
     static damaging = ['A','CAC','CAD','SA','HSC','HS','TR','BAD'];
     static fields = {
         A:31198, D:8000, CAC:98.27, V:8000, CAD:825.25, CAR:30, SA:15573, SD:900, MP:50, HP:30, 
-        HSC:12.91, CD:30, HS:3388, GP:1, TR:39.18, BAD:50.25
+        HSC:12.91, CR:30, HS:3388, GP:1, TR:39.18, BAD:50.25
     };
     static DOM = () => 
         E('form', [...Object.entries(CharForm.fields).flatMap(([prop, value]) => [

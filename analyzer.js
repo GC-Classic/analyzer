@@ -47,7 +47,7 @@ class Analyzer extends HTMLElement {
         Help.cursor(this.shadowRoot);
         Help.event(this.shadowRoot);
     }
-    calculate() {setTimeout(() => {console.log('cal');
+    calculate() {setTimeout(() => {
         let enemy = this.enemyForm.give();
         this.buffForm.take(enemy.settings);
         let {setup, buffs} = this.buffForm.give();
@@ -74,6 +74,7 @@ class Analyzer extends HTMLElement {
         let type = this.sQ('input[name=skill]:checked').value;
         before = Damage({...before, ...setup, buffs: buffs.before}, enemy, type);
         after = Damage({...after, ...setup, buffs: buffs.after}, enemy, type);
+        this.el.ul.classList = after.at(-1);
         Form.output(this.el.damages, {before, after}); });
     }
     present (before, after, def, TD) {
@@ -88,7 +89,7 @@ class Analyzer extends HTMLElement {
             ...after.map(s => E('img', {src: `/rune/set/${s}.webp`})),
         );
     }
-    save () {setTimeout(() => {console.log('save');
+    save () {setTimeout(() => {
         let content = {
             name: this.el.name.value,
             color: this.el.color.value,
@@ -163,6 +164,7 @@ class Analyzer extends HTMLElement {
     ref = () => ({
         name: this.sQ('[name=name]'),
         color: this.sQ('[type=color]'),
+        ul: this.sQ('ul'),
         damages: this.sQ(':is(ul,h3) output'),
         present: this.sQ(`details:has(buff-form) .ante`),
         summary: {

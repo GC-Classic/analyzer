@@ -38,7 +38,8 @@ const Damage = ({A, SA, CAC, CAD, BAP, BAD, HSC, HS: HSD, TD, TR, Lv, enemyLv, c
             base * BA.m / (1 + def.NHSAD), (base * BA.m + HS.d) / (1 + def.HSAD), base * BA.m * CA.m / (1 + def.NHSAD), (base * BA.m * CA.m + HS.d) / (1 + def.HSAD)
         ];
     }
-    return [...matrix, Damage.average(matrix, special ? 0 : HS.c, CA.c, BA.c)];
+    let classes = [CA.c === 0 ? 'no-CA' : CA.c === 1 ? 'all-CA' : '', HS.d === 0 ? 'no-HS' : '', BA.c === 0 ? 'no-BA' : ''].filter(c => c);
+    return [...matrix, Damage.average(matrix, special ? 0 : HS.c, CA.c, BA.c), classes.join(' ')];
 }
 Object.assign(Damage, {
     normal: (A, SA, coef, NTD, seniority, buffs) =>

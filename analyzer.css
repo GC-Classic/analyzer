@@ -54,9 +54,9 @@ b {
     i {
         &:only-child {display:none;}
         &:last-child {margin-right:0;}
-        &:first-child::before, &:last-child::after {content:'∅';}
-        &:first-child::before {margin-right:.5em;}
-        &:last-child::after {margin-left:.5em;}
+        &:first-child::before, &:last-child::after {content:'∅'; color:#00e5d8;}
+        &:first-child::before {margin-right:.25em;}
+        &:last-child::after {margin-left:.25em;}
     }
 }
 :is(prop-icon,i)+data {
@@ -121,6 +121,12 @@ b {
                 content:'s'; visibility:hidden;
             }
             &:has(data[value=NaN]) {display:none;}
+        }
+        &.all-CA li:not(:has(prop-icon[prop=CAD])),
+        &.no-CA li:has(prop-icon[prop=CAD]),
+        &.no-HS li:has(prop-icon[prop=HS]),
+        &.no-BA li:has(prop-icon[prop=BAD]) {
+            opacity:.5;
         }
     }
     h3 output {
@@ -193,7 +199,7 @@ b {
     label input[type=number] {
         width:calc(100% - 1.1rem);
 
-        &:is([placeholder=CD],[placeholder=GP],[placeholder=CAR]) {
+        &:is([placeholder=CR],[placeholder=GP],[placeholder=CAR]) {
             color:darkgray;
         }
     }
