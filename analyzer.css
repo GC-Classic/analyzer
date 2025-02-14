@@ -220,6 +220,7 @@ b {
 :host(buff-form) input {
     width:3em;
 
+    &:is([name=coef]) {width:6.1em;}
     &:is([name=coef],[name=TD],[name=BAP],[name=enemyLv],[name=Lv],[name=damage],[name=from-damage]) {
         background:lightskyblue;
     }
@@ -268,7 +269,7 @@ b {
             position:absolute; left:0; top:-.05rem; z-index:-1;
         };
     }
-    input[name=boss] {
+    [name=boss] {
         display:revert;
         width:1.2rem; height:1.2rem;
         margin:0;
