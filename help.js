@@ -85,8 +85,8 @@ Object.assign(RunePicker, {
             );
     },
     reset () {
-        [this.aside.Q('input:checked') ?? []].flat().forEach(input => input.checked = false);
-        [this.aside.Q('label[class]') ?? []].flat().forEach(label => label.classList = '');
+        this.aside.Q('input:checked', input => input.checked = false);
+        this.aside.Q('label[class]', label => label.classList = '');
         this.aside.Q('input:not([type])', input => input.value = '');
         this.focus?.classList.remove('focus');
     },
@@ -200,6 +200,10 @@ const Help = {
         `Please estimate the proportion of back attacks. Default: 20%.`,
         `請估計你背擊次數的比例（預設 20%）`
     ],
+    '.conditional': [
+        `Conditional buff`,
+        `條件性增益`
+    ],
     'section b': [
         `Enter extra damage buff here, such as increase in attack in fatal status etc`,
         `輸入其他傷害增益，如 Fatal 時攻擊力提升等`
@@ -237,7 +241,7 @@ const Help = {
 }
 Object.defineProperties(Help, {
     cursor: {
-        value: (where = document) => where.Q(Object.keys(Help), el => el.classList.add('help')),
+        value: (where = document, what) => where.Q(what ?? Object.keys(Help), el => el.classList.add('help')),
     },
     event: {
         value: (where = window, inner = false) => where.addEventListener('contextmenu', ev => {
