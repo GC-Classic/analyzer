@@ -144,6 +144,7 @@ Object.assign(RunePicker.secondary, {
     add (label) {
         let c = this.order.find(c => !RunePicker.aside.Q(`#secondary .${c}`));
         this.outline(label, c);
+        gtag('event', 'secondary', {prop: label.Q('prop-icon').prop});
     },
     remove (label) {
         let i = this.order.findIndex(c => c == label.classList);
