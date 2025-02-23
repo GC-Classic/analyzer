@@ -5,6 +5,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Monda:wght@700&family=Shippori+Antique&family=Sofia+Sans+Condensed:wght@600;800&display=swap" rel="stylesheet">
+<script src="https://beybladeburst.github.io/QOE.js"></script>
 <script src="/common.js"></script>
 <script src="form.js"></script>
 <script src="form-char.js"></script>
@@ -131,13 +132,10 @@
     Menu.action = dragged => Q(`power-analyzer:nth-child(${dragged.Q('input:checked').value})`).scrollIntoView();
     Menu.arrange = () => {
         Q('menu>li:last-child ol').replaceChildren(
-            ...[...Q('section').children].reverse().map((cal, i, ar) => {
-                let li = E('li', [E('label', [
-                    E('input', {type: 'radio', name: 'char', value: ar.length - i}), 
-                    E('u', cal.el.name.value)
-                ])], {style: {backgroundColor: cal.el.color.value}});
-                return li;
-            })
+            ...[...Q('section').children].reverse().map((cal, i, ar) => E('li', 
+                [E.radio(E('u', cal.el.name.value), {name: 'char', value: ar.length - i})], 
+                {style: {backgroundColor: cal.el.color.value}}
+            ))
         );
         Menu.align();
     }

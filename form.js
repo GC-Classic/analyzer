@@ -58,7 +58,7 @@ class Form extends HTMLElement {
         return content;
     }
     fill () {
-        Object.entries(this.saved ?? {}).forEach(([key, value]) => {
+        new O(this.saved ?? {}).each(([key, value]) => {
             let input = this.inputs.find(key);
             if (input.length > 1) return;
             value === true ? input.checked = true : 

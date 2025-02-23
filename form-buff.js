@@ -51,7 +51,7 @@ class BuffForm extends Form {
             this.el.sections.forEach(sec => stuff.forEach(set =>
                 sec.Q(`label:nth-child(1 of :has([id*=${set}]:not(:checked))) input`).checked = true));
         } else {
-            Object.entries(stuff).forEach(([name, value]) => {
+            new O(stuff).each(([name, value]) => {
                 this.el[name].labels[0].classList.add('lock');
                 this.el[name][typeof value == 'boolean' ? 'checked' : 'value'] = value;
             });
@@ -85,7 +85,7 @@ class BuffForm extends Form {
                 classList: 'setup', step: 0.0001, 
                 placeholder: 7.575, input: 'last'
             }),
-            ...Object.entries(BuffForm.buffs.inputs).flatMap(([name, span]) => [
+            ...new O(BuffForm.buffs.inputs).flatMap(([name, span]) => [
                 E.input(E.bilingual(span), {
                     type: 'number', name, 
                     classList: /^att|sp/.test(name) ? 'skill' : 'setup',
@@ -98,9 +98,9 @@ class BuffForm extends Form {
             ]),
             E('div', {classList: 'diff'}, 
                 E.radios([
-                    {children: E.bilingual('Before', '之前'), value: 'before'}, 
-                    {children: E.bilingual('After', '之後'), value: 'after', checked: true}
-                ], {name: 'time'})
+                    new E.prop(E.bilingual('Before', '之前'), {name: 'time', value: 'before'}), 
+                    new E.prop(E.bilingual('After', '之後'),  {name: 'time', value: 'after', checked: true})
+                ])
             ),
             E('section', [
                 ...BuffForm.labelling('title', id => `/analyzer/buffs/${id}.webp`),
@@ -115,7 +115,7 @@ class BuffForm extends Form {
         ]),
         E('div', ['HS', 'CAC'].map(p => Form.showDiff(p))),
         E('div', ['CAD', 'BAD'].flatMap(p => [
-            E.prop(p), 
+            E.icon(p), 
             E('data', {classList: `ante`, title: p}),
         ]))
     ];
@@ -129,12 +129,12 @@ class BuffForm extends Form {
             after: this.sQ('section:last-of-type :is([type=radio],[type=checkbox])')
         },
         setups: this.sQ('label .setup'),
-        ...Object.fromEntries(['coef', 'rune', 'boss', 'TD', 'enemyLv', 'Lv'].map(name => [name, this.sQ(`[name=${name}]`)]))
+        ...new O(['coef', 'rune', 'boss', 'TD', 'enemyLv', 'Lv'].map(name => [name, this.sQ(`[name=${name}]`)]))
     });
-    static labelling = (name, src) => E.checkboxes(Object.entries(BuffForm.buffs[name]).map(([id, value]) => ({
-        id, value: JSON.stringify(value), title: value.A || value.HS,
-        children: E('img', {src: src(id)})
-    })), {name});
+    static labelling = (name, src) => E.checkboxes(new O(BuffForm.buffs[name]).flatMap(([id, value]) => new E.prop(
+        {id, value: JSON.stringify(value), title: value.A || value.HS, name},
+        E('img', {src: src(id)})
+    ) ));
     static buffs = {
         inputs: {
             sp: 'All skill|所有技能',

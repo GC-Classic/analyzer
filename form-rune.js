@@ -111,7 +111,7 @@ class RuneForm extends Form {
             E('figure'), E('figure'),
         ]),
         E('div', ['A', 'HS'].map(p => [
-            p == 'A' ? [E.prop('A'), E.prop('SA')] : E.prop(p), 
+            p == 'A' ? [E.icon('A'), E.icon('SA')] : E.icon(p), 
             E('data', {classList: `ante percent`, title: p}),
             E('data', {classList: `post percent`, title: p}),
         ]).flat(9))

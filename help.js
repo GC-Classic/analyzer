@@ -100,7 +100,7 @@ Object.assign(RunePicker, {
         if (!rune.primary) return;
 
         let aspects = (({tier, set, primary: {level, prop: primary}}) => ({tier, set, level, primary}))(rune);
-        Object.entries(aspects).forEach(([a, v]) => (v || v === 0) && (this.aside.Q(`#${a} [value='${v}']`).checked = true));
+        new O(aspects).each(([a, v]) => (v || v === 0) && (this.aside.Q(`#${a} [value='${v}']`).checked = true));
         this.aside.Q(`#grade label:nth-child(${rune.grade+1}) input`).checked = true;
         rune.secondary.forEach(({prop, level}, i) => {
             let input = this.aside.Q(`#secondary [value=${prop}]`);
@@ -130,12 +130,12 @@ Object.assign(RunePicker, {
     },
 });
 Object.assign(RunePicker.build, {
-    tier : [1,2,3,4,5].map(t => ({children: `T${t}`, value: t}) ),
-    grade: ['Common|普通','Rare|稀有','Epic|史詩','Legend|傳說'].map(g => ({children: E.bilingual(g), value: g[0]}) ),
-    level: [...Array(11)].map((_, l) => ({children: `+${l}`, value: l}) ),
-    set  : Rune.set.flat().map(s => ({children: E('img', {src: `/rune/set/${s}.webp`}), value: s}) ),
-    primary: shape => Rune.primary[shape].map(p => ({children: E.prop(p), value: p}) ),
-    secondary: Object.keys(Rune.secondary).map(p => ({children: E.prop(p), value: p, name: 'secondary'}) )
+    tier : [1,2,3,4,5].map(t => new E.prop(`T${t}`, {value: t})),
+    grade: ['Common|普通','Rare|稀有','Epic|史詩','Legend|傳說'].map(g => new E.prop(E.bilingual(g), {value: g[0]})),
+    level: [...Array(11)].map((_, l) => new E.prop(`+${l}`, {value: l})),
+    set  : Rune.set.flat().map(s => new E.prop(E('img', {src: `/rune/set/${s}.webp`}), {value: s})),
+    primary: shape => Rune.primary[shape].map(p =>  new E.prop(E.icon(p), {value: p})),
+    secondary: Object.keys(Rune.secondary).map(p => new E.prop(E.icon(p), {value: p, name: 'secondary'}))
 
 });
 Object.assign(RunePicker.secondary, {
@@ -236,8 +236,8 @@ const Help = {
         `Defense against normal attack with hell spear activated`,
         `對有發動地獄之矛的一般攻擊的防禦`,
     ],
-    ...Object.fromEntries(Object.entries(Icon.en).map(([prop, en]) => [`prop-icon[prop=${prop}]`, [en, Icon.zh[prop]]])),
-    ...Object.fromEntries(Object.entries(Rune.set.zh).map(([en, zh]) => [`img[alt=${en}]`, [en, zh]]))
+    ...new O(Icon.en).map(([prop, en]) => [`prop-icon[prop=${prop}]`, [en, Icon.zh[prop]]]),
+    ...new O(Rune.set.zh).map(([en, zh]) => [`img[alt=${en}]`, [en, zh]])
 }
 Object.defineProperties(Help, {
     cursor: {
@@ -255,7 +255,7 @@ Object.defineProperties(Help, {
     },
     show: {
         value: ({target, x, y}) => {
-            let content = Object.entries(Help).find(([selector]) => target.closest('.help')?.matches(selector))?.[1];
+            let content = new O(Help).find(([selector]) => target.closest('.help')?.matches(selector))?.[1];
             if (!content) return;
             Help.dialog ?? Object.defineProperty(Help, 'dialog', {value: Q('dialog')});
             Help.dialog.replaceChildren(...content.map(text => E('span', text)));

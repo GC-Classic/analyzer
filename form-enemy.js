@@ -29,20 +29,20 @@ class EnemyForm extends Form {
     static DOM = () => 
         E('form', [
             E('div', [
-                E.prop('SD'),
-                E('b', [E.prop('HS'), E.prop('D')]),
-                E('b', [E.prop('A'), E.prop('HS', {no: true}), E.prop('D')]),
-                E('b', [E.prop('A'), E.prop('HS'), E.prop('D')])
+                E.icon('SD'),
+                E('b', [E.icon('HS'), E.icon('D')]),
+                E('b', [E.icon('A'), E.icon('HS', {no: true}), E.icon('D')]),
+                E('b', [E.icon('A'), E.icon('HS'), E.icon('D')])
             ]),
             E.radio(
                 EnemyForm.present('general.png', 'General|一般', [0, 0, 0, '']), 
                 {name: 'enemy', value: JSON.stringify({def: [0, 0, 0, '']}), classList: 'unset', checked: true}
             ),
             E('article', 
-                E.radios(EnemyForm.enemies.map(([img, name, def, extra]) => ({
-                    children: EnemyForm.present(img, name, def), 
-                    value: JSON.stringify({def, boss: true, ...extra})
-                }) ), {name: 'enemy'}),
+                E.radios(EnemyForm.enemies.map(([img, name, def, extra]) => new E.prop(
+                    EnemyForm.present(img, name, def), 
+                    {value: JSON.stringify({def, boss: true, ...extra}), name: 'enemy'}
+                ) )),
             )
         ]);
     ref = () => ({

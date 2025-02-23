@@ -18,7 +18,7 @@ class CharForm extends Form {
         return {before: this.before, diff};
     }
     take (runeDiffSum) {
-        Object.entries(runeDiffSum).forEach(([p, v]) => this.sQ(`data[title=${p}]`).value = v);
+        new O(runeDiffSum).each(([p, v]) => this.sQ(`data[title=${p}]`).value = v);
         this.output({before: this.before.TA, after: this.before.add(runeDiffSum).TA});
     }
     static attacking = ['A','CAC','CAD','SA','MP','D','V','SD','HP'];
@@ -28,12 +28,12 @@ class CharForm extends Form {
         HSC:12.91, CR:30, HS:3388, GP:1, TR:39.18, BAD:50.25
     };
     static DOM = () => 
-        E('form', [...Object.entries(CharForm.fields).flatMap(([prop, value]) => [
+        E('form', [...new O(CharForm.fields).flatMap(([prop, value]) => [
             E.input([E('prop-icon', {prop, lang: true})], {
                 input: 'last',
                 type: 'number', placeholder: prop, value,
                 step: Stats.decimals.includes(prop) ? .01 : 1,
-                classList: ['attacking', 'damaging'].map(c => CharForm[c].includes(prop) ? c : '').join(' ')
+                classList: ['attacking', 'damaging'].map(c => CharForm[c].includes(prop) ? c : '')
             }), 
             E('data', {classList: 'ante', title: prop}),
             E('input', {classList: 'formula', name: `Δ${prop}`, placeholder: '='})
