@@ -48,8 +48,10 @@ class BuffForm extends Form {
     take (stuff) {
         if (Array.isArray(stuff)) {
             this.el.rune.forEach(input => input.checked = false);
-            this.el.sections.forEach(sec => stuff.forEach(set =>
-                sec.Q(`label:nth-child(1 of :has([id*=${set}]:not(:checked))) input`).checked = true));
+            this.el.sections.forEach(sec => stuff.forEach(set => {
+                let input = sec.Q(`label:nth-child(1 of :has([id*=${set}]:not(:checked))) input`);
+                input && (input.checked = true);
+            }));
         } else {
             new O(stuff).each(([name, value]) => {
                 this.el[name].labels[0].classList.add('lock');
