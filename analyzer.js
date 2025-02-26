@@ -131,7 +131,7 @@ class Analyzer extends HTMLElement {
                 E.bilingual('Normal attack', '普通攻擊'), 
                 {value: 'normal', name: 'skill', checked: true}
             ),
-            ...E.radios(['sp13', 'sp4', 'spA'].map(skill => new E.prop(
+            ...E.radios(['sp13', 'sp4', 'spA'].map(skill => new A(
                 E.bilingual(BuffForm.buffs.inputs[skill]),
                 {value: skill, name: 'skill'},
             ) )),

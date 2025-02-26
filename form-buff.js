@@ -100,8 +100,8 @@ class BuffForm extends Form {
             ]),
             E('div', {classList: 'diff'}, 
                 E.radios([
-                    new E.prop(E.bilingual('Before', '之前'), {name: 'time', value: 'before'}), 
-                    new E.prop(E.bilingual('After', '之後'),  {name: 'time', value: 'after', checked: true})
+                    new A(E.bilingual('Before', '之前'), {name: 'time', value: 'before'}), 
+                    new A(E.bilingual('After', '之後'),  {name: 'time', value: 'after', checked: true})
                 ])
             ),
             E('section', [
@@ -133,7 +133,7 @@ class BuffForm extends Form {
         setups: this.sQ('label .setup'),
         ...new O(['coef', 'rune', 'boss', 'TD', 'enemyLv', 'Lv'].map(name => [name, this.sQ(`[name=${name}]`)]))
     });
-    static labelling = (name, src) => E.checkboxes(new O(BuffForm.buffs[name]).flatMap(([id, value]) => new E.prop(
+    static labelling = (name, src) => E.checkboxes(new O(BuffForm.buffs[name]).flatMap(([id, value]) => new A(
         {id, value: JSON.stringify(value), title: value.A || value.HS, name},
         E('img', {src: src(id)})
     ) ));

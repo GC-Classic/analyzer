@@ -39,7 +39,7 @@ class EnemyForm extends Form {
                 {name: 'enemy', value: JSON.stringify({def: [0, 0, 0, '']}), classList: 'unset', checked: true}
             ),
             E('article', 
-                E.radios(EnemyForm.enemies.map(([img, name, def, extra]) => new E.prop(
+                E.radios(EnemyForm.enemies.map(([img, name, def, extra]) => new A(
                     EnemyForm.present(img, name, def), 
                     {value: JSON.stringify({def, boss: true, ...extra}), name: 'enemy'}
                 ) )),

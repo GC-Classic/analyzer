@@ -99,8 +99,8 @@ Object.assign(RunePicker, {
         this.build('primary', rune.shape);
         if (!rune.primary) return;
 
-        let aspects = (({tier, set, primary: {level, prop: primary}}) => ({tier, set, level, primary}))(rune);
-        new O(aspects).each(([a, v]) => (v || v === 0) && (this.aside.Q(`#${a} [value='${v}']`).checked = true));
+        let aspects = (({tier, set: Set, primary: {level, prop: primary}}) => ({tier, Set, level, primary}))(rune);
+        new O(aspects).each(([a, v]) => (v || v === 0) && (this.aside.Q(`#${a.toLowerCase()} [value='${v}']`).checked = true));
         this.aside.Q(`#grade label:nth-child(${rune.grade+1}) input`).checked = true;
         rune.secondary.forEach(({prop, level}, i) => {
             let input = this.aside.Q(`#secondary [value=${prop}]`);
@@ -130,12 +130,12 @@ Object.assign(RunePicker, {
     },
 });
 Object.assign(RunePicker.build, {
-    tier : [1,2,3,4,5].map(t => new E.prop(`T${t}`, {value: t})),
-    grade: ['Common|普通','Rare|稀有','Epic|史詩','Legend|傳說'].map(g => new E.prop(E.bilingual(g), {value: g[0]})),
-    level: [...Array(11)].map((_, l) => new E.prop(`+${l}`, {value: l})),
-    set  : Rune.set.flat().map(s => new E.prop(E('img', {src: `/rune/set/${s}.webp`}), {value: s})),
-    primary: shape => Rune.primary[shape].map(p =>  new E.prop(E.icon(p), {value: p})),
-    secondary: Object.keys(Rune.secondary).map(p => new E.prop(E.icon(p), {value: p, name: 'secondary'}))
+    tier : [1,2,3,4,5].map(t => new A(`T${t}`, {value: t})),
+    grade: ['Common|普通','Rare|稀有','Epic|史詩','Legend|傳說'].map(g => new A(E.bilingual(g), {value: g[0]})),
+    level: [...Array(11)].map((_, l) => new A(`+${l}`, {value: l, name: 'level'})),
+    set  : Rune.set.flat().map(s => new A(E('img', {src: `/rune/set/${s}.webp`}), {value: s, name: 'set'})),
+    primary: shape => Rune.primary[shape].map(p =>  new A(E.icon(p), {value: p, name: 'primary'})),
+    secondary: Object.keys(Rune.secondary).map(p => new A(E.icon(p), {value: p, name: 'secondary'}))
 
 });
 Object.assign(RunePicker.secondary, {
