@@ -111,9 +111,9 @@ Object.assign(RunePicker, {
     },
     read () {
         this.focus.value = `T${this.get('tier', 'grade')}+${this.get('level', 'primary')}(${this.secondary()}){${this.get('set')}}`;
-        let RuneForm = this.focus.getRootNode().host;
-        RuneForm.changeRune(this.focus);
-        RuneForm.dispatch('calculate');
+        let runeForm = this.focus.getRootNode().host;
+        runeForm.changeRune(this.focus);
+        runeForm.dispatch('calculate');
     },
     get (...which) {
         return which.length > 1 ? which.map(w => this.get(w)).join('') : this.aside.Q(`#${which} :checked`)?.value || '';
@@ -130,8 +130,8 @@ Object.assign(RunePicker, {
     },
 });
 Object.assign(RunePicker.build, {
-    tier : [1,2,3,4,5].map(t => new A(`T${t}`, {value: t})),
-    grade: ['Common|普通','Rare|稀有','Epic|史詩','Legend|傳說'].map(g => new A(E.bilingual(g), {value: g[0]})),
+    tier : [1,2,3,4,5].map(t => new A(`T${t}`, {value: t, name: 'tier'})),
+    grade: ['Common|普通','Rare|稀有','Epic|史詩','Legend|傳說'].map(g => new A(E.bilingual(g), {value: g[0], name: 'grade'})),
     level: [...Array(11)].map((_, l) => new A(`+${l}`, {value: l, name: 'level'})),
     set  : Rune.set.flat().map(s => new A(E('img', {src: `/rune/set/${s}.webp`}), {value: s, name: 'set'})),
     primary: shape => Rune.primary[shape].map(p =>  new A(E.icon(p), {value: p, name: 'primary'})),

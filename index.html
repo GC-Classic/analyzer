@@ -131,6 +131,8 @@
 <script>
     onhashchange(location.hash.substring(1) || 'en');
     Promise.all(['power-analyzer', 'char-form', 'buff-form', 'rune-form', 'enemy-form'].map(el => customElements.whenDefined(el))).then(() => Q('main').hidden = false);
+    DB.show = (store = 'characters') => DB.open().then(() => DB.getAll(store))
+        .then(entries => entries.length ? entries.forEach(([i, entry]) => Analyzer.add({id: i, ...entry})) : Analyzer.add()),
     DB.show('characters');
     RunePicker();
     Help.event();
