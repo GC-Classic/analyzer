@@ -1,10 +1,10 @@
 import {Data, Damage} from '/calculation.js'
 import {Menu} from '/UIX.js'
-import {Form} from './form.js'
-import {CharForm} from './form-char.js'
-import {BuffForm} from './form-buff.js'
-import {RuneForm} from './form-rune.js'
-import {EnemyForm} from './form-enemy.js'
+import Form from './form.js'
+import CharForm from './form-char.js'
+import BuffForm from './form-buff.js'
+import RuneForm from './form-rune.js'
+import EnemyForm from './form-enemy.js'
 import {Helper} from './help.js'
 class Analyzer extends HTMLElement {
     constructor(saved) {
@@ -184,4 +184,4 @@ Analyzer.add = data => {
 }
 Analyzer.delete = checked => Q('power-analyzer', cal => cal.classList.toggle('delete', checked));
 customElements.define('power-analyzer', Analyzer);
-export {Analyzer}
+export default Analyzer

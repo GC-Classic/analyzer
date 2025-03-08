@@ -1,5 +1,5 @@
 import {Stat} from '/calculation.js'
-import {Form} from './form.js'
+import Form from './form.js'
 class CharForm extends Form {
     constructor(saved) {
         super(saved);
@@ -53,4 +53,4 @@ class CharForm extends Form {
     });
 }
 customElements.define('char-form', CharForm);
-export {CharForm}
+export default CharForm

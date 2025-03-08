@@ -120,17 +120,19 @@
 </template>
 
 <script type="module">
+    import {A,E,O,Q} from 'https://aeoq.github.io/AEOQ.mjs'
     import {Menu} from '/UIX.js'
     import {Helper, Picker} from './help.js'
-    import {Analyzer} from './analyzer.js'
+    import Analyzer from './analyzer.js'
 
     onhashchange(location.hash.substring(1) || 'en');
     Promise.all(['power-analyzer', 'char-form', 'buff-form', 'rune-form', 'enemy-form'].map(el => customElements.whenDefined(el)))
-    .then(() => Q('main').hidden = false);
+        .then(() => Q('main').hidden = false);
 
-    DB.show = (store = 'characters') => DB.open().then(() => DB.getAll(store))
+    DB.show = store => DB.open().then(() => DB.getAll(store))
         .then(entries => entries.length ? entries.forEach(([i, entry]) => Analyzer.add({id: i, ...entry})) : Analyzer.add()),
     DB.show('characters');
+    
     Picker();
     Helper.event();
     Helper.cursor();

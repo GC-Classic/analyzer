@@ -1,6 +1,6 @@
 import {Rune, Runes} from '/rune/rune.js'
-import {RuneElement} from '/rune/rune-element.js'
-import {Form} from './form.js'
+import RuneElement from '/rune/rune-element.js'
+import Form from './form.js'
 import {Picker} from './help.js';
 class RuneForm extends Form {
     constructor(saved) {
@@ -197,4 +197,4 @@ Object.assign(RuneForm.parse, {
     }
 });
 customElements.define('rune-form', RuneForm);
-export {RuneForm}
+export default RuneForm

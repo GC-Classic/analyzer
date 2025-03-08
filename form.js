@@ -1,3 +1,4 @@
+import {A,E,O,Q} from 'https://aeoq.github.io/AEOQ.mjs'
 import {Data, Stat} from '/calculation.js'
 import {Helper} from './help.js'
 class Form extends HTMLElement {
@@ -110,4 +111,4 @@ class Form extends HTMLElement {
         E('data', {classList: `post ${prop == 'CAC' ? '' : 'percent'}`, title: prop})
     ]);
 }
-export {Form}
+export default Form

@@ -1,4 +1,4 @@
-import {Form} from './form.js'
+import Form from './form.js'
 class EnemyForm extends Form {
     constructor() {
         super();
@@ -101,4 +101,4 @@ class EnemyForm extends Form {
     ]
 }
 customElements.define('enemy-form', EnemyForm);
-export {EnemyForm}
+export default EnemyForm
