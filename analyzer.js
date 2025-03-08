@@ -100,7 +100,7 @@ class Analyzer extends HTMLElement {
             name: this.el.name.value,
             color: this.el.color.value,
         };
-        content = Analyzer.forms.reduce((obj, f) => ({...obj, ...f == 'enemyForm' ? {} : this[f].save()}), content);
+        content = {...new O(content, ...Analyzer.forms.map(f => f == 'enemyForm' ? {} : this[f].save()))};
         DB.put('characters', this.id ? [parseInt(this.id), content] : content)
             .then(ev => this.id = ev.target.result).catch(er => Q('header p').textContent = er);
     })}

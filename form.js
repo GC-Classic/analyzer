@@ -14,10 +14,10 @@ class Form extends HTMLElement {
         this.fill();
         Data.observe(this.shadowRoot);
         this.sQ('input[type=number]:not([min])', input => input.min = 0);
-        this.sQ('.formula')?.forEach(input => {
-            input.onblur = () => this.formula.evaluate(input);
-            input.onfocus = () => this.formula.edit(input)
-        });
+        this.sQ('.formula')?.forEach(input => E(input).set({
+            onblur: () => this.formula.evaluate(input),
+            onfocus: () => this.formula.edit(input)
+        }));
         Helper.cursor(this.shadowRoot);
         Helper.event(this.shadowRoot, true);
     }
@@ -44,21 +44,20 @@ class Form extends HTMLElement {
         edit: input => input.value = input.dataset.stored ?? ''
     }
     get = {
-        values: inputs => inputs.reduce((obj, input) => ({...obj, [
-            input.name.includes('Δ') ? input.name.substring(1) : input.name || input.placeholder
-        ]: this.numeric(input)}), {}),
-        stats: inputs => inputs.reduce((sum, input) => input.checked ? sum.add(JSON.parse(input.value)) : sum, new Stat(Stat.zero()))
+        values: inputs => new O(inputs.map(input => 
+            [input.name.includes('Δ') ? input.name.substring(1) : input.name || input.placeholder, this.numeric(input)]
+        )),
+        stats: inputs => new Stat().add(...inputs.map(input => input.checked ? JSON.parse(input.value) : {}))
     }
     save (excludes = '') {
-        let content = {
-            [this.constructor.name]: this.sQ(`input${excludes},select`).reduce((obj, input) => ({...obj, ...
-                input.type == 'select-one' ? {[this.inputs.key(input)]: this.options.sort(input.options, input.value)} :
-                input.dataset.stored ? {[input.name]: input.dataset.stored} :
-                ['number', 'text'].includes(input.type) && input.value !== '' ? {[this.inputs.key(input)]: input.value} : 
-                ['radio', 'checkbox'].includes(input.type) && input.checked ? {[this.inputs.key(input)]: true} : {}
-            }), {}) 
+        return {
+            [this.constructor.name]: {...new O(this.sQ(`input${excludes},select`).map(input =>
+                input.dataset.stored ? [input.name, input.dataset.stored] :
+                input.type == 'select-one' ? [this.inputs.key(input), this.options.sort(input.options, input.value)] :
+                ['number', 'text'].includes(input.type) && input.value !== '' ? [this.inputs.key(input), input.value] : 
+                ['radio', 'checkbox'].includes(input.type) && input.checked ? [this.inputs.key(input), true] : null
+            ).filter(a => a))}
         };
-        return content;
     }
     fill () {
         new O(this.saved ?? {}).each(([key, value]) => {
@@ -77,10 +76,10 @@ class Form extends HTMLElement {
     inputs = {
         find: key => this.sQ(`input[id='${key}']`) ?? this.sQ(`input[name='${key}']`) ?? this.sQ(`input[placeholder='${key}']`),
         key: input => input.id || input.name || input.placeholder,
-        store: (input, json) => {
-            input.dataset.stored = json;
-            input.value = JSON.parse(json)[0];
-        }
+        store: (input, json) => E(input).set({
+            dataset: {stored: json},
+            value: JSON.parse(json)[0]
+        })
     }
     options = {
         sort: (options, selected) => [...options].map(o => o.value).sort((a, b) => a == selected ? -1 : b == selected ? 1 : 0),
