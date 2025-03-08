@@ -138,7 +138,7 @@
 
     Menu();
     Q('input[name=action]', input => input.onchange = ev => Analyzer[input.id](ev.target.checked));
-    Menu.action = dragged => Q(`power-analyzer:nth-child(${dragged.Q('input:checked').value})`).scrollIntoView();
+    Menu.action = () => Q(`power-analyzer:nth-child(${Q('.PI-selected input').value})`).scrollIntoView();
     Menu.arrange = () => {
         Q('menu>li:last-child ol').replaceChildren(
             ...[...Q('section').children].reverse().map((cal, i, ar) => E('li', 
