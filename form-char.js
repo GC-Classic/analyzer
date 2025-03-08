@@ -1,3 +1,5 @@
+import {Stat} from '/calculation.js'
+import {Form} from './form.js'
 class CharForm extends Form {
     constructor(saved) {
         super(saved);
@@ -14,7 +16,7 @@ class CharForm extends Form {
     give () {
         let before = this.get.values(this.el.numbers);
         let diff = this.mode != 'diff' ? null : this.get.values(this.el.formulae);
-        this.before = new Stats(before);
+        this.before = new Stat(before);
         return {before: this.before, diff};
     }
     take (runeDiffSum) {
@@ -32,7 +34,7 @@ class CharForm extends Form {
             E.input([E('prop-icon', {prop, lang: true})], {
                 input: 'last',
                 type: 'number', placeholder: prop, value,
-                step: Stats.decimals.includes(prop) ? .01 : 1,
+                step: Stat.decimals.includes(prop) ? .01 : 1,
                 classList: ['attacking', 'damaging'].map(c => CharForm[c].includes(prop) ? c : '')
             }), 
             E('data', {classList: 'ante', title: prop}),
@@ -51,3 +53,4 @@ class CharForm extends Form {
     });
 }
 customElements.define('char-form', CharForm);
+export {CharForm}

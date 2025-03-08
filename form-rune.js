@@ -1,3 +1,6 @@
+import {Rune, Runes} from '/rune/rune.js'
+import {RuneElement} from '/rune/rune-element.js'
+import {Form} from './form.js'
 class RuneForm extends Form {
     constructor(saved) {
         super(saved);
@@ -12,12 +15,12 @@ class RuneForm extends Form {
     }            
     events () {
         this.el.form.onchange = ev => {
-            if (ev.target.type == 'radio') return RunePicker.aside.classList.remove('remind');
+            if (ev.target.type == 'radio') return Picker.aside.classList.remove('remind');
             ['text', 'select-one'].includes(ev.target.type) && this.changeRune(ev.target);
             this.dispatch('calculate');
         }
         this.el.form.onclick = ev => ev.stopPropagation();
-        this.el.runes.strings.forEach(input => input.onfocus = ev => RunePicker.set(ev));
+        this.el.runes.strings.forEach(input => input.onfocus = ev => Picker.set(ev));
     }
     randomize () {
         this.el.runes.switches.forEach(input => input.checked = true);
@@ -61,17 +64,17 @@ class RuneForm extends Form {
                 this.el.slots[input.checked ? 'after' : 'before'][i].firstElementChild)),
         };
         let buffs = {
-            before: new Stats().add(...sets.before.map(s => Rune.set.buff[s])),
-            after: new Stats().add(...sets.after.map(s => Rune.set.buff[s])),
+            before: new Stat().add(...sets.before.map(s => Rune.set.buff[s])),
+            after: new Stat().add(...sets.after.map(s => Rune.set.buff[s])),
         };
         this.present(sets, buffs);
-        let setEffect = new Stats()
+        let setEffect = new Stat()
             .add(...sets.after.map(s => Rune.set.effect[s]))
             .minus(...sets.before.map(s => Rune.set.effect[s]));
             
         let diffs = [...this.el.runes.switches.map((input, i) => input.checked ?
-            RuneForm.getStats(this.el.slots.after[i]).minus(RuneForm.getStats(this.el.slots.before[i])) :
-            new Stats() 
+            RuneForm.getStat(this.el.slots.after[i]).minus(RuneForm.getStat(this.el.slots.before[i])) :
+            new Stat() 
         ), setEffect];
         return {diffs, buffs};
     };
@@ -134,7 +137,7 @@ class RuneForm extends Form {
         },
         present: this.sQ(`div .ante`)
     });
-    static getStats = slot => new Stats(slot.firstElementChild?.rune?.stats);
+    static getStat = slot => new Stat(slot.firstElementChild?.rune?.stats);
     static parse = (input, shape) => { 
         let em = input.parentElement.Q('em');
         em.innerHTML = '';
@@ -193,3 +196,4 @@ Object.assign(RuneForm.parse, {
     }
 });
 customElements.define('rune-form', RuneForm);
+export {RuneForm}

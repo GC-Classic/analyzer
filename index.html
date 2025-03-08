@@ -7,15 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Monda:wght@700&family=Shippori+Antique&family=Sofia+Sans+Condensed:wght@600;800&display=swap" rel="stylesheet">
 <script src="https://aeoq.github.io/AEOQ.js"></script>
 <script src="/common.js"></script>
-<script src="form.js"></script>
-<script src="form-char.js"></script>
-<script src="form-buff.js"></script>
-<script src="form-rune.js"></script>
-<script src="form-enemy.js"></script>
-<script src="/rune/rune.js"></script>
-<script src="/rune/rune-element.js"></script>
-<script src="analyzer.js"></script>
-<script src="help.js"></script>
 <link rel="stylesheet" href="/common.css">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-FPLGF8M093"></script>
 <script>
@@ -128,16 +119,22 @@
     </ul>
 </template>
 
-<script>
+<script type="module">
+    import {Menu} from '/UIX.js'
+    import {Helper, Picker} from './help.js'
+    import {Analyzer} from './analyzer.js'
+
     onhashchange(location.hash.substring(1) || 'en');
-    Promise.all(['power-analyzer', 'char-form', 'buff-form', 'rune-form', 'enemy-form'].map(el => customElements.whenDefined(el))).then(() => Q('main').hidden = false);
+    Promise.all(['power-analyzer', 'char-form', 'buff-form', 'rune-form', 'enemy-form'].map(el => customElements.whenDefined(el)))
+    .then(() => Q('main').hidden = false);
+
     DB.show = (store = 'characters') => DB.open().then(() => DB.getAll(store))
         .then(entries => entries.length ? entries.forEach(([i, entry]) => Analyzer.add({id: i, ...entry})) : Analyzer.add()),
     DB.show('characters');
-    RunePicker();
-    Help.event();
-    Help.cursor();
-    addEventListener('help', ev => ev.stopPropagation() ?? Help.show(ev.detail));
+    Picker();
+    Helper.event();
+    Helper.cursor();
+    addEventListener('help', ev => ev.stopPropagation() ?? Helper.show(ev.detail));
 
     Menu();
     Q('input[name=action]', input => input.onchange = ev => Analyzer[input.id](ev.target.checked));

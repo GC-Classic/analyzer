@@ -1,3 +1,4 @@
+import {Form} from './form.js'
 class BuffForm extends Form {
     constructor(saved) {
         super(saved);
@@ -171,3 +172,4 @@ class BuffForm extends Form {
     }
 }
 customElements.define('buff-form', BuffForm);
+export {BuffForm}

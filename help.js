@@ -1,82 +1,28 @@
-const Damage = ({A, SA, CAC, CAD, BAP, BAD, HSC, HS: HSD, TD, TR, Lv, enemyLv, coef, buffs}, def, special = false) => {
-    CAC += buffs?.CAC || 0; CAD += buffs?.CAD || 0; BAD += buffs?.BAD || 0;
-    def = {...def}; def.SD /= 100; def.HSD &&= def.HSD / 100; def.NHSAD /= 100; def.HSAD &&= def.HSAD / 100;
-    buffs.A /= 100; 
+import {Icon} from '/UIX.js'
+import {Rune} from '/rune/rune.js'
+const Picker = () => {
+    Picker.aside = Q('aside');
+    Picker.secondary.levels = Q('aside #secondary+form input'),
 
-    special == 'normal' && (special = false);
-    let NTD = Math.max(TD - TR, 0)/100;
-    let seniority = Math.max(Lv - enemyLv - 5, 0);
-
-    let HS = {
-        c: HSC/100,
-        d: HSD * (1 + buffs.HS/100) * (1 - NTD) * (1 - special) / (1 + (def.HSD || 0))
-    };
-    let CA = {
-        c: Math.min(1, Math.max(CAC/100, 0)),
-        m: Math.max(1, 1.5 + CAD/100)
-    };
-    let BA = {
-        c: BAP/100,
-        m: Math.max(1, 1.3 + BAD/100)
-    };
-    let base = Damage[special ? 'special' : 'normal'](A, SA, coef, NTD, seniority, buffs, {SD: def.SD});
-    let matrix;
-    if (special) {
-        matrix = [
-            base,        null, base * CA.m,        null, 
-            base * BA.m, null, base * BA.m * CA.m, null, 
-        ];
-    } else if (def.HSD) {
-        base /= (1 + def.NHSAD);
-        matrix = [
-            base,        base + HS.d,        base * CA.m,        base * CA.m + HS.d, 
-            base * BA.m, base * BA.m + HS.d, base * BA.m * CA.m, base * BA.m * CA.m + HS.d, 
-        ];
-    } else {
-        matrix = [
-            base / (1 + def.NHSAD),        (base + HS.d) / (1 + def.HSAD),        base * CA.m / (1 + def.NHSAD),        (base * CA.m + HS.d) / (1 + def.HSAD),
-            base * BA.m / (1 + def.NHSAD), (base * BA.m + HS.d) / (1 + def.HSAD), base * BA.m * CA.m / (1 + def.NHSAD), (base * BA.m * CA.m + HS.d) / (1 + def.HSAD)
-        ];
-    }
-    let classes = [CA.c === 0 ? 'no-CA' : CA.c === 1 ? 'all-CA' : '', HS.d === 0 ? 'no-HS' : '', BA.c === 0 ? 'no-BA' : ''].filter(c => c);
-    return [...matrix, Damage.average(matrix, special ? 0 : HS.c, CA.c, BA.c), classes.join(' ')];
-}
-Object.assign(Damage, {
-    normal: (A, SA, coef, NTD, seniority, buffs) =>
-        A * .0168 * coef * (1 + buffs.A) * (1 + seniority/50) * (1 - NTD),
-
-    special: (A, SA, coef, NTD, seniority, buffs, def) =>
-        (A + SA) * .005469 * coef / (1 + def.SD) * (1 + buffs.A) * (1 + seniority/50) * (1 - NTD),
-
-    average: ([A, HSA, CA, CHSA, BA, HSBA, CBA, CHSBA], HSc, CAc, BAc) =>
-            A*(1-HSc)*(1-CAc)*(1-BAc) +   HSA*(HSc)*(1-CAc)*(1-BAc)
-        +  CA*(1-HSc)*  (CAc)*(1-BAc) +  CHSA*(HSc)*  (CAc)*(1-BAc)
-        +  BA*(1-HSc)*(1-CAc)*  (BAc) +  HSBA*(HSc)*(1-CAc)*  (BAc)
-        + CBA*(1-HSc)*  (CAc)*  (BAc) + CHSBA*(HSc)*  (CAc)*  (BAc)
-});
-const RunePicker = () => {
-    RunePicker.aside = Q('aside');
-    RunePicker.secondary.levels = Q('aside #secondary+form input'),
-
-    RunePicker.build(['tier', 'grade', 'level', 'secondary', 'set']);
-    RunePicker.aside.onchange = ev => {
+    Picker.build(['tier', 'grade', 'level', 'secondary', 'set']);
+    Picker.aside.onchange = ev => {
         if (ev.target.type == 'checkbox') {
-            if (RunePicker.aside.Q('[type=checkbox]:checked')?.length > 3)
+            if (Picker.aside.Q('[type=checkbox]:checked')?.length > 3)
                 return ev.target.checked = false;
-            RunePicker.secondary[ev.target.checked ? 'add' : 'remove'](ev.target.labels[0]);
+            Picker.secondary[ev.target.checked ? 'add' : 'remove'](ev.target.labels[0]);
         }
-        RunePicker.read();
+        Picker.read();
     };
-    RunePicker.aside.onwheel = ev => ev.preventDefault() || (RunePicker.aside.scrollLeft += ev.deltaY);
+    Picker.aside.onwheel = ev => ev.preventDefault() || (Picker.aside.scrollLeft += ev.deltaY);
 
     Q('main').onclick = ev => {
         if (ev.target.id || ev.target.htmlFor) return;
-        RunePicker.aside.classList.remove('remind');
-        RunePicker.focus?.classList.remove('focus');
-        RunePicker.focus = null;
+        Picker.aside.classList.remove('remind');
+        Picker.focus?.classList.remove('focus');
+        Picker.focus = null;
     }
 };
-Object.assign(RunePicker, {
+Object.assign(Picker, {
     build (which, param) {
         Array.isArray(which) ? 
             which.forEach(w => this.build(w)) : 
@@ -129,7 +75,7 @@ Object.assign(RunePicker, {
         return prop + reinforce;
     },
 });
-Object.assign(RunePicker.build, {
+Object.assign(Picker.build, {
     tier : [1,2,3,4,5].map(t => new A(`T${t}`, {value: t, name: 'tier'})),
     grade: ['Common|普通','Rare|稀有','Epic|史詩','Legend|傳說'].map(g => new A(E.bilingual(g), {value: g[0], name: 'grade'})),
     level: [...Array(11)].map((_, l) => new A(`+${l}`, {value: l, name: 'level'})),
@@ -138,11 +84,11 @@ Object.assign(RunePicker.build, {
     secondary: Object.keys(Rune.secondary).map(p => new A(E.icon(p), {value: p, name: 'secondary'}))
 
 });
-Object.assign(RunePicker.secondary, {
+Object.assign(Picker.secondary, {
     order: ['blue','lime','red'],
     outline (label, c) {label.classList = c != null ? typeof c == 'string' ? c : this.order[c] : ''},
     add (label) {
-        let c = this.order.find(c => !RunePicker.aside.Q(`#secondary .${c}`));
+        let c = this.order.find(c => !Picker.aside.Q(`#secondary .${c}`));
         this.outline(label, c);
         gtag('event', 'secondary', {prop: label.Q('prop-icon').prop});
     },
@@ -152,7 +98,7 @@ Object.assign(RunePicker.secondary, {
         this.levels[i].value = '';
     }
 });
-const Help = {
+const Helper = {
     '[name=name]': [
         `Enter character name for your own identification`,
         `輸入角色名稱作自己的記認`
@@ -240,9 +186,9 @@ const Help = {
     ...new O(Icon.en).map(([prop, en]) => [`prop-icon[prop=${prop}]`, [en, Icon.zh[prop]]]),
     ...new O(Rune.set.zh).map(([en, zh]) => [`img[alt=${en}]`, [en, zh]])
 }
-Object.defineProperties(Help, {
+Object.defineProperties(Helper, {
     cursor: {
-        value: (where = document, what) => where.Q(what ?? Object.keys(Help), el => el.classList.add('help')),
+        value: (where = document, what) => where.Q(what ?? Object.keys(Helper), el => el.classList.add('help')),
     },
     event: {
         value: (where = window, inner = false) => where.addEventListener('contextmenu', ev => {
@@ -256,13 +202,14 @@ Object.defineProperties(Help, {
     },
     show: {
         value: ({target, x, y}) => {
-            let content = new O(Help).find(([selector]) => target.closest('.help')?.matches(selector))?.[1];
+            let content = new O(Helper).find(([selector]) => target.closest('.help')?.matches(selector))?.[1];
             if (!content) return;
-            Help.dialog ?? Object.defineProperty(Help, 'dialog', {value: Q('dialog')});
-            Help.dialog.replaceChildren(...content.map(text => E('span', text)));
-            Help.dialog.showModal();
-            Help.dialog.style.left = `${Math.min(x, innerWidth - 200)}px`;
-            Help.dialog.style.top = `${y}px`;
+            Helper.dialog ?? Object.defineProperty(Helper, 'dialog', {value: Q('dialog')});
+            Helper.dialog.replaceChildren(...content.map(text => E('span', text)));
+            Helper.dialog.showModal();
+            Helper.dialog.style.left = `${Math.min(x, innerWidth - 200)}px`;
+            Helper.dialog.style.top = `${y}px`;
         },
     }
 });
+export {Picker, Helper}

@@ -1,3 +1,5 @@
+import {Data, Stat} from '/calculation.js'
+import {Helper} from './help.js'
 class Form extends HTMLElement {
     constructor(saved) {
         super();
@@ -15,8 +17,8 @@ class Form extends HTMLElement {
             input.onblur = () => this.formula.evaluate(input);
             input.onfocus = () => this.formula.edit(input)
         });
-        Help.cursor(this.shadowRoot);
-        Help.event(this.shadowRoot, true);
+        Helper.cursor(this.shadowRoot);
+        Helper.event(this.shadowRoot, true);
     }
     dispatch = (type, el, action) => this.dispatchEvent(new CustomEvent(type, {detail: {el, action}, composed: true}));
     numeric (el) {
@@ -44,7 +46,7 @@ class Form extends HTMLElement {
         values: inputs => inputs.reduce((obj, input) => ({...obj, [
             input.name.includes('Δ') ? input.name.substring(1) : input.name || input.placeholder
         ]: this.numeric(input)}), {}),
-        stats: inputs => inputs.reduce((sum, input) => input.checked ? sum.add(JSON.parse(input.value)) : sum, new Stats(Stats.zero()))
+        stats: inputs => inputs.reduce((sum, input) => input.checked ? sum.add(JSON.parse(input.value)) : sum, new Stat(Stat.zero()))
     }
     save (excludes = '') {
         let content = {
@@ -108,3 +110,4 @@ class Form extends HTMLElement {
         E('data', {classList: `post ${prop == 'CAC' ? '' : 'percent'}`, title: prop})
     ]);
 }
+export {Form}

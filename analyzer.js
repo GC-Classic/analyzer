@@ -1,3 +1,11 @@
+import {Data, Damage} from '/calculation.js'
+import {Menu} from '/UIX.js'
+import {Form} from './form.js'
+import {CharForm} from './form-char.js'
+import {BuffForm} from './form-buff.js'
+import {RuneForm} from './form-rune.js'
+import {EnemyForm} from './form-enemy.js'
+import {Helper} from './help.js'
 class Analyzer extends HTMLElement {
     constructor(saved) {
         super();
@@ -44,8 +52,8 @@ class Analyzer extends HTMLElement {
         this.addEventListener('calculate', () => [this.calculate(), this.save()]);
         this.addEventListener('request', ({detail}) => detail.action(detail.el ? this[detail.el] : this));
         this.addEventListener('help', ({detail}) => dispatchEvent(new CustomEvent('help', {detail})));
-        Help.cursor(this.shadowRoot);
-        Help.event(this.shadowRoot);
+        Helper.cursor(this.shadowRoot);
+        Helper.event(this.shadowRoot);
     }
     calculate() {setTimeout(() => {
         let enemy = this.enemyForm.give();
@@ -58,7 +66,7 @@ class Analyzer extends HTMLElement {
             let runes = this.runeForm.give();
             let eachDiffTA = this.charForm.calculate(runes.diffs ?? []);
             this.runeForm.take(eachDiffTA); 
-            this.charForm.take(new Stats().add(...runes.diffs ?? []));
+            this.charForm.take(new Stat().add(...runes.diffs ?? []));
             
             after = before.add(...runes.diffs ?? []);
             buffs = {
@@ -85,7 +93,7 @@ class Analyzer extends HTMLElement {
     presentSets (before, after) {
         let img = s => E('img', {src: `/rune/set/${s}.webp`, classList: ['hunt','rage','punish'].includes(s) ? 'conditional' : ''});
         this.el.summary.rune.replaceChildren(...before.map(img), E('i', '⟶'), ...after.map(img));
-        Help.cursor(this.shadowRoot, '.conditional');
+        Helper.cursor(this.shadowRoot, '.conditional');
     }
     save () {setTimeout(() => {
         let content = {
@@ -154,7 +162,7 @@ class Analyzer extends HTMLElement {
         ]),
         E('details', [
             E('summary', E.bilingual('Enemy (Partial)', '對象（部分）')), 
-            E('enemy-form')
+            new EnemyForm()
         ]),
     ];
     ref = () => ({
@@ -176,3 +184,4 @@ Analyzer.add = data => {
 }
 Analyzer.delete = checked => Q('power-analyzer', cal => cal.classList.toggle('delete', checked));
 customElements.define('power-analyzer', Analyzer);
+export {Analyzer}
