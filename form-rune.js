@@ -1,6 +1,7 @@
 import {Rune, Runes} from '/rune/rune.js'
 import {RuneElement} from '/rune/rune-element.js'
 import {Form} from './form.js'
+import {Picker} from './help.js';
 class RuneForm extends Form {
     constructor(saved) {
         super(saved);
