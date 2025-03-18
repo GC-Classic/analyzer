@@ -2,12 +2,26 @@
 <title>Power analyzer</title>
 <meta charset="utf-8">
 <meta name=viewport content='width=device-width,initial-scale=1,maximum-scale=1'>
+<link rel=manifest href='data:application/manifest+json,{
+    "name":"GCC Power Analyzer",
+    "display":"standalone",
+    "start_url":"https://gc-classic.github.io/analyzer",
+    "icons":[{"src":"https://gc-classic.github.io/favicon.ico","type":"image/png","sizes":"192x192"},{"src":"https://gc-classic.github.io/favicon.ico","type":"image/png","sizes":"512x512","purpose":"maskable"}]
+}'>
+<script type="module">
+    import {A,E,O,Q} from 'https://aeoq.github.io/AEOQ.mjs'
+    Object.assign(E, {
+        icon: (prop, attr) => E('prop-icon', {prop, ...attr ?? {}}),
+        bilingual: (...text) => (text.length === 1 ? text[0].split('|') : text).map(t => E('span', t)),
+    });
+    Object.assign(window, {A,E,O,Q});
+</script>
+<script>navigator.serviceWorker.register('/worker.js')</script>
+<link rel="stylesheet" href="/common.css">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Monda:wght@700&family=Shippori+Antique&family=Sofia+Sans+Condensed:wght@600;800&display=swap" rel="stylesheet">
-<script src="https://aeoq.github.io/AEOQ.js"></script>
-<script src="/common.js"></script>
-<link rel="stylesheet" href="/common.css">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-FPLGF8M093"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -45,16 +59,13 @@
                 <span><img src="/rune/set/tolerance.webp"> effect affects character stats, but due to the complications in calculation with a title of vitality buff, it is neglected in this analyzer.</span>
                 <span><img src="/rune/set/tolerance.webp"> 效果會影響面版數値，但由於與加生命力的頭銜一同裝備時計算較複雜，故此計算器內忽略。</span>      
             <li>
-                <span>In-game bug: Any fatal-only effect of epic reinforcement stone is only valid in the same stage of reaching the fatal status. It disappears after moving to the next stage.</span>
-                <span>遊戲內 Bug：Fatal 型的史詩強化石效果只在達至 Fatal 的同一關卡有效，移到下一關後即告失效。</span>
-            <li>
                 <span>In-game bug: If you are not the host and are enjoying shared buffs from other team members, epic reinforcememnt stone on the secondary weapon will be treated as a normal stone.</span>
                 <span>遊戲內 Bug：若你不是室長而又享用其他隊員的共享增益，副武器的史詩強化石會當成一般強化石計算。</span>    
     </details>
     <div>
         <nav>
-            <a href="./" onclick="DB.export(this)"><span>Export storage</span><span>下載儲存資料</span></a>
-            <a href="" onchange="DB.import(this)"><label><span>Import storage</span><span>上載儲存資料</span><input type="file"></label></a>
+            <a href="./" id="export"><span>Export storage</span><span>下載儲存資料</span></a>
+            <a href="" id="import"><label><span>Import storage</span><span>上載儲存資料</span><input type="file"></label></a>
             <a href="#en" class="lang">English</a>
             <a href="#zh" class="lang"><span class="always">中文</span></a>
         </nav>
@@ -103,7 +114,7 @@
 <footer>
     <!--a href="/rune"><span>Rune</span><span>符文</span></a>・
     <a href="/property"><span>Property</span><span>屬性</span></a-->
-    <cite>By V. Man (@beybladeburst) GuRan GCC 2021</cite>
+    <cite>By V. Man (@AEOQ) GuRan GCC 2021</cite>
 </footer>
 
 <template>
@@ -121,7 +132,7 @@
 
 <script type="module">
     import {A,E,O,Q} from 'https://aeoq.github.io/AEOQ.mjs'
-    import {Menu} from '/UIX.js'
+    import {Menu, DB, onhashchange} from '/UIX.js'
     import {Helper, Picker} from './help.js'
     import Analyzer from './analyzer.js'
 
@@ -132,6 +143,8 @@
     DB.show = store => DB.open().then(() => DB.getAll(store))
         .then(entries => entries.length ? entries.forEach(([i, entry]) => Analyzer.add({id: i, ...entry})) : Analyzer.add()),
     DB.show('characters');
+    Q('#export').onclick = ev => DB.export(ev.target.closest('a'));
+    Q('#import').onchange = ev => DB.import(ev.target.closest('a'));
     
     Picker();
     Helper.event();

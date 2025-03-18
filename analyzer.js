@@ -1,5 +1,5 @@
-import {Data, Damage} from '/calculation.js'
-import {Menu} from '/UIX.js'
+import {Data, Stat, Damage} from '/calculation.js'
+import {Menu, DB} from '/UIX.js'
 import Form from './form.js'
 import CharForm from './form-char.js'
 import BuffForm from './form-buff.js'
