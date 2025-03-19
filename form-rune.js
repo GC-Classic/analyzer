@@ -75,7 +75,7 @@ class RuneForm extends Form {
             .minus(...sets.before.map(s => Rune.set.effect[s]));
             
         let diffs = [...this.el.runes.switches.map((input, i) => input.checked ?
-            RuneForm.getStat(this.el.slots.after[i]).minus(RuneForm.getStat(this.el.slots.before[i])) :
+            new Stat().add(this.el.slots.after[i].firstElementChild?.rune.stat).minus(this.el.slots.before[i].firstElementChild?.rune.stat) :
             new Stat() 
         ), setEffect];
         return {diffs, buffs};
@@ -139,7 +139,6 @@ class RuneForm extends Form {
         },
         present: this.sQ(`div .ante`)
     });
-    static getStat = slot => new Stat(slot.firstElementChild?.rune?.stats);
     static parse = (input, shape) => { 
         let em = input.parentElement.Q('em');
         em.innerHTML = '';
