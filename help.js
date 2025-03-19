@@ -205,11 +205,11 @@ Object.defineProperties(Helper, {
             let content = new O(Helper).find(([selector]) => target.closest('.help')?.matches(selector))?.[1];
             if (!content) return;
             Helper.dialog ?? Object.defineProperty(Helper, 'dialog', {value: Q('dialog')});
+            Helper.dialog.showModal();
             E(Helper.dialog).set({style: {
-                left: `${Math.min(x, innerWidth - 200)}px`,
+                left: `${Math.min(x, innerWidth - Helper.dialog.clientWidth)}px`,
                 top: `${y}px`
             }}, content.map(text => E('span', text)));
-            Helper.dialog.showModal();
         },
     }
 });
