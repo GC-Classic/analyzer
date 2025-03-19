@@ -136,7 +136,7 @@
     import {Helper, Picker} from './help.js'
     import Analyzer from './analyzer.js'
 
-    onhashchange(location.hash.substring(1) || 'en');
+    window.onhashchange(location.hash.substring(1) || 'en');
     Promise.all(['power-analyzer', 'char-form', 'buff-form', 'rune-form', 'enemy-form'].map(el => customElements.whenDefined(el)))
         .then(() => Q('main').hidden = false);
 
