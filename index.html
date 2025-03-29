@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<title>Power analyzer</title>
+<meta charset="utf-8">
+<meta name=viewport content='width=device-width,initial-scale=1,maximum-scale=1'>
+<link rel=manifest href='data:application/manifest+json,{
+    "name":"GCC Power Analyzer",
+    "display":"standalone",
+    "start_url":"https://gc-classic.github.io/analyzer",
+    "icons":[{"src":"https://gc-classic.github.io/favicon.ico","type":"image/webp","sizes":"192x192"},{"src":"https://gc-classic.github.io/favicon.ico","type":"image/webp","sizes":"512x512","purpose":"maskable"}]
+}'>
+<script type="module">
+    import {A,E,O,Q} from 'https://aeoq.github.io/AEOQ.mjs'
+    Object.assign(E, {
+        icon: (prop, attr) => E('prop-icon', {prop, ...attr ?? {}}),
+        bilingual: (...text) => (text.length === 1 ? text[0].split('|') : text).map(t => E('span', t)),
+    });
+    Object.assign(window, {A,E,O,Q});
+</script>
+<script>navigator.serviceWorker.register('/worker.js')</script>
+<link rel="stylesheet" href="/common.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Monda:wght@700&family=Shippori+Antique&family=Sofia+Sans+Condensed:wght@600;800&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FPLGF8M093"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-FPLGF8M093');
+</script>
+
+<header>
+    <details>
+        <summary><span>Reminders</span><span>提示</span></summary>
+        <ul>
+            <li>
+                <span><a href='https://www.youtube.com/watch?v=wVdpA3gaWjY' target='_blank'>Demonstration video</a></span>
+                <span><a href='https://www.youtube.com/watch?v=wVdpA3gaWjY' target='_blank'>示範影片</a></span>
+            <li>
+                <span>All content will be saved to your current browser automatically.</span>
+                <span>所有內容自動保存至你正使用的瀏覽器。</span>
+            <li>
+                <span>If you see a question mark next to the cursor, right-click for an explanation.</span>
+                <span>若看到鼠標旁有問號，點擊右鍵會有解說。</span>
+            <li>
+                <span>Rounding errors will accumulate, resulting in the final calculated value being different from the in-game value, usually within ±50.</span>
+                <span>捨入誤差會累積，導致最後計算出的數值與遊戲內的不同，通常在 ±50 內。</span>
+            <li>
+                <span>
+                    <u class="posi">+</u><u class="nega">−</u> VS <u class="posi">▲</u><u class="nega">▼</u>: 𝑎<u class="nega"> − 𝑏</u> means 𝑎 is the old value and the new value is 𝑎 − 𝑏. 
+                    𝑎<u class="nega">▼𝑏</u> means 𝑎 is the new value, which is 𝑏 less than the old value, so the old one is 𝑎 + 𝑏.
+                </span>
+                <span>
+                    <u class="posi" style="font-size:1.5em;line-height:0;">+</u><u class="nega" style="font-size:1.5em;line-height:0;">−</u> 與 <u class="posi">▲</u><u class="nega">▼</u>：𝑎<u class="nega"> − 𝑏</u> 表示 𝑎 是舊値，新値是 𝑎 − 𝑏。
+                    𝑎<u class="nega">▼𝑏</u> 表示 𝑎 是新値，比舊値下降了 𝑏，故舊値是 𝑎 + 𝑏。
+                </span>
+            <li>
+                <span><img src="/rune/set/tolerance.webp"> effect affects character stats, but due to the complications in calculation with a title of vitality buff, it is neglected in this analyzer.</span>
+                <span><img src="/rune/set/tolerance.webp"> 效果會影響面版數値，但由於與加生命力的頭銜一同裝備時計算較複雜，故此計算器內忽略。</span>      
+            <li>
+                <span>In-game bug: If you are not the host and are enjoying shared buffs from other team members, epic reinforcememnt stone on the secondary weapon will be treated as a normal stone.</span>
+                <span>遊戲內 Bug：若你不是室長而又享用其他隊員的共享增益，副武器的史詩強化石會當成一般強化石計算。</span>    
+    </details>
+    <div>
+        <nav>
+            <a href="./" id="export"><span>Export storage</span><span>下載儲存資料</span></a>
+            <a href="" id="import"><label><span>Import storage</span><span>上載儲存資料</span><input type="file"></label></a>
+            <a href="#en" class="lang">English</a>
+            <a href="#zh" class="lang"><span class="always">中文</span></a>
+        </nav>
+        <p></p>
+        <menu>
+            <li>
+                <input type="checkbox" name="action" id="add">
+                <label for="add"><span>Add char</span><span>增加角色</span></label>
+            <li>
+                <input type="checkbox" name="action" id="delete">
+                <label for="delete"><span>Delete char</span><span>刪除角色</span></label>
+            <li>
+                <ol><li></ol>
+                <label for="jump"><span>Jump to</span><span>跳至</span></label>
+        </menu>
+    </div>
+</header>
+
+<main hidden>
+    <section></section>
+</main>
+
+<aside>
+    <form id="tier"></form>
+    <form id="grade"></form>
+    <div>
+        <span>Primary</span><span>主屬性</span>
+        <form id="primary"></form>
+        <form id="level"></form>
+    </div>
+    <div>
+        <span>Secondary</span><span>副屬性</span>
+        <form id="secondary"></form>
+        <form>
+            <input placeholder="+0/1.98"><input placeholder="+0/1.98"><input placeholder="+0/1.98">
+        </form>
+    </div>
+    <div>
+        <span>Set</span><span>套裝</span>
+        <form id="set"></form>
+    </div>
+</aside>
+
+<dialog onclick="this.close()"></dialog>
+
+<footer>
+    <!--a href="/rune"><span>Rune</span><span>符文</span></a>・
+    <a href="/property"><span>Property</span><span>屬性</span></a-->
+    <cite>By V. Man (@AEOQ) GuRan GCC 2021</cite>
+</footer>
+
+<template>
+    <ul>
+        <li id="invalid-tier"><span>Invalid tier</span><span>階級不可能</span>
+        <li id="invalid-grade"><span>Invalid grade</span><span>等級不可能</span>
+        <li id="invalid-primary"><span>Invalid primary property</span><span>主屬性不可能</span>
+        <li id="invalid-level"><span>Invalid level</span><span>強化等級不可能</span>
+        <li id="invalid-secondary"><span>Invalid secondary properties</span><span>副屬性不可能</span>
+        <li id="invalid-secondary-level"><span>Invalid secondary reinforced times</span><span>副屬性強化次數不可能</span>
+        <li id="unmatched-secondary"><span>Unmatched secondary number and reinforced times with grade and level</span><span>副屬性數量及強化次數與等級不符</span>
+        <li id="invalid-set"><span>Invalid set</span><span>套裝不存在</span>
+    </ul>
+</template>
+
+<script type="module">
+    import {A,E,O,Q} from 'https://aeoq.github.io/AEOQ.mjs'
+    import {Menu, DB} from '/UIX.js'
+    import {Helper, Picker} from './help.js'
+    import Analyzer from './analyzer.js'
+
+    window.onhashchange(location.hash.substring(1) || 'en');
+    Promise.all(['power-analyzer', 'char-form', 'buff-form', 'rune-form', 'enemy-form'].map(el => customElements.whenDefined(el)))
+        .then(() => Q('main').hidden = false);
+
+    DB.show = store => DB.open().then(() => DB.getAll(store))
+        .then(entries => entries.length ? entries.forEach(([i, entry]) => Analyzer.add({id: i, ...entry})) : Analyzer.add()),
+    DB.show('characters');
+    Q('#export').onclick = ev => DB.export(ev.target.closest('a'));
+    Q('#import').onchange = ev => DB.import(ev.target.closest('a'));
+    
+    Picker();
+    Helper.event();
+    Helper.cursor();
+    addEventListener('help', ev => ev.stopPropagation() ?? Helper.show(ev.detail));
+
+    Menu();
+    Q('input[name=action]', input => input.onchange = ev => Analyzer[input.id](ev.target.checked));
+    Menu.action = () => Q(`power-analyzer:nth-child(${Q('.PI-selected input').value})`).scrollIntoView();
+    Menu.arrange = () => {
+        Q('menu>li:last-child ol').replaceChildren(
+            ...[...Q('section').children].reverse().map((cal, i, ar) => E('li', 
+                [E.radio(E('u', cal.el.name.value), {name: 'char', value: ar.length - i})], 
+                {style: {backgroundColor: cal.el.color.value}}
+            ))
+        );
+        Menu.align();
+    }
+    new MutationObserver(Menu.arrange).observe(Q('section'), {childList: true});
+</script>
+<style>
+    aside {
+        overflow-x:scroll;
+        display:grid;
+        grid-template:'tier level primary secondary set' auto 'grade level primary secondary set' auto / 11.2em max-content max-content max-content;
+        >* {max-height:5em;}
+    }
+    aside form {
+        display:flex; flex-wrap:wrap; align-items:center;
+    }
+    aside div {
+        display:flex; align-items:center;
+        border-left:.1rem solid var(--bg);
+        padding:0 .5rem;
+
+        span {
+            width:1em; 
+            color:var(--bg);
+            margin-right:.2rem;
+            
+            &:lang(en) {writing-mode:sideways-lr;}
+        }
+        form {
+            flex-flow:column wrap; justify-content:center;
+            height:100%;
+        }
+    }
+    aside label {
+        padding:0 .5em; margin:.2em; 
+        border-radius:9em; 
+        background:var(--bg);
+        position:relative;
+
+        &.blue {outline:.1rem solid blue;}
+        &.lime {outline:.1rem solid lime;}
+        &.red {outline:.1rem solid red;}
+
+        &:has(:checked):not(:has(img,prop-icon)) {background:#7387fa;;}
+        &:has(:checked):has(img,prop-icon) {filter:brightness(2.5);}
+        >* {vertical-align:middle !important;}
+    }
+    #tier {grid-area:tier;text-align:left;}
+    #grade {grid-area:grade;}
+    div:has(#primary) {grid-area:primary;}
+    div:has(#secondary) {grid-area:secondary;}
+    div:has(#set) {grid-area:set;}
+
+    input:not([type]) {
+        width:2.5em;
+        margin:.2em;
+        font-size:inherit;
+
+        &:nth-child(1) {outline:.1em blue solid;}
+        &:nth-child(2) {outline:.1em lime solid;}
+        &:nth-child(3) {outline:.1em red solid;}
+    }
+</style>
