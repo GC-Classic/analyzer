@@ -51,12 +51,12 @@ class Form extends HTMLElement {
     }
     save (excludes = '') {
         return {
-            [this.constructor.name]: {...new O(this.sQ(`input${excludes},select`).map(input =>
+            [this.constructor.name]: new O(this.sQ(`input${excludes},select`).map(input =>
                 input.dataset.stored ? [input.name, input.dataset.stored] :
                 input.type == 'select-one' ? [this.inputs.key(input), this.options.sort(input.options, input.value)] :
                 ['number', 'text'].includes(input.type) && input.value !== '' ? [this.inputs.key(input), input.value] : 
                 ['radio', 'checkbox'].includes(input.type) && input.checked ? [this.inputs.key(input), true] : null
-            ).filter(a => a))}
+            ).filter(a => a))
         };
     }
     fill () {
