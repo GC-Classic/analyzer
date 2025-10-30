@@ -135,10 +135,10 @@ class BuffForm extends Form {
         setups: this.sQ('label .setup'),
         ...new O(['coef', 'rune', 'boss', 'TD', 'enemyLv', 'Lv'].map(name => [name, this.sQ(`[name=${name}]`)]))
     });
-    static labelling = (name, src) => E.checkboxes(new O(BuffForm.buffs[name]).flatMap(([id, value]) => new A(
-        {id, value: JSON.stringify(value), title: value.A || value.HS, name},
-        E('img', {src: src(id)})
-    ) ));
+    static labelling = (name, src) => E.checkboxes(new O(BuffForm.buffs[name]).flatMap(([id, value]) => ({
+        label: new A(E('img', {src: src(id)}), {title: value.A || value.HS}),
+        id, value: JSON.stringify(value), name
+    }) ));
     static buffs = {
         inputs: {
             sp: 'All skill|所有技能',
