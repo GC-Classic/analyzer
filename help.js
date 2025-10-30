@@ -76,12 +76,12 @@ Object.assign(Picker, {
     },
 });
 Object.assign(Picker.build, {
-    tier : [1,2,3,4,5].map(t => new A(`T${t}`, {value: t, name: 'tier'})),
-    grade: ['Common|普通','Rare|稀有','Epic|史詩','Legend|傳說'].map(g => new A(E.bilingual(g), {value: g[0], name: 'grade'})),
-    level: [...Array(11)].map((_, l) => new A(`+${l}`, {value: l, name: 'level'})),
-    set  : Rune.set.flat().map(s => new A(E('img', {src: `/rune/set/${s}.webp`}), {value: s, name: 'set'})),
-    primary: shape => Rune.primary[shape].map(p =>  new A(E.icon(p), {value: p, name: 'primary'})),
-    secondary: Object.keys(Rune.secondary).map(p => new A(E.icon(p), {value: p, name: 'secondary'}))
+    tier : [1,2,3,4,5].map(t => ({label: `T${t}`, value: t, name: 'tier'})),
+    grade: ['Common|普通','Rare|稀有','Epic|史詩','Legend|傳說'].map(g => ({label: E.bilingual(g), value: g[0], name: 'grade'})),
+    level: [...Array(11)].map((_, l) => ({label: `+${l}`, value: l, name: 'level'})),
+    set  : Rune.set.flat().map(s => ({label: E('img', {src: `/rune/set/${s}.webp`}), value: s, name: 'set'})),
+    primary: shape => Rune.primary[shape].map(p =>  ({label: E.icon(p), value: p, name: 'primary'})),
+    secondary: Object.keys(Rune.secondary).map(p => ({label: E.icon(p), value: p, name: 'secondary'}))
 
 });
 Object.assign(Picker.secondary, {
