@@ -35,15 +35,15 @@ class EnemyForm extends Form {
                 E('b', [E.icon('A'), E.icon('HS', {no: true}), E.icon('D')]),
                 E('b', [E.icon('A'), E.icon('HS'), E.icon('D')])
             ]),
-            E.radio(
-                EnemyForm.present('general.png', 'General|一般', [0, 0, 0, '']), 
-                {name: 'enemy', value: JSON.stringify({def: [0, 0, 0, '']}), classList: 'unset', checked: true}
-            ),
+            E.radio({
+                label: EnemyForm.present('general.png', 'General|一般', [0, 0, 0, '']), 
+                name: 'enemy', value: JSON.stringify({def: [0, 0, 0, '']}), classList: 'unset', checked: true
+            }),
             E('article', 
-                E.radios(EnemyForm.enemies.map(([img, name, def, extra]) => new A(
-                    EnemyForm.present(img, name, def), 
-                    {value: JSON.stringify({def, boss: true, ...extra}), name: 'enemy'}
-                ) )),
+                E.radios(EnemyForm.enemies.map(([img, name, def, extra]) => ({
+                    label: EnemyForm.present(img, name, def), 
+                    value: JSON.stringify({def, boss: true, ...extra}), name: 'enemy'
+                }) )),
             )
         ]);
     ref = () => ({
@@ -54,7 +54,7 @@ class EnemyForm extends Form {
     static present = (img, name, def) => [
         E('img', {src: `buffs/${img}`}), 
         ...name.split('|').map(n => E('span', {innerHTML: n.replace(/[(（].+?[)）]/, '<small>$&</small>')})),
-        ...def.map(value => E('data', {classList: 'def ante percent', value})), 
+        ...def.map(value => E('data.def.ante.percent', {value})), 
     ];
     static enemies = [
         ['berkas.webp', 'Tail|尾', [1400, 200, 1400, '']],

@@ -80,29 +80,30 @@ class BuffForm extends Form {
     });
     static DOM = () => [
         E('form', [
-            E.input([
-                E('a', E.bilingual('Coefficient', '傷害系數'),
-                {href: 'https://docs.google.com/spreadsheets/d/1FGxKHQuwz_Jx-GdYd6647FiAE9UbS6mZgufXor9_DZk', target: '_blank'}),
-            ], {
+            E.input({
+                label: E('a', E.bilingual('Coefficient', '傷害系數'), {
+                    href: 'https://docs.google.com/spreadsheets/d/1FGxKHQuwz_Jx-GdYd6647FiAE9UbS6mZgufXor9_DZk', target: '_blank'
+                }),
                 type: 'number', name: 'coef', 
                 classList: 'setup', step: 0.0001, 
                 placeholder: 7.575, input: 'last'
             }),
             ...new O(BuffForm.buffs.inputs).flatMap(([name, span]) => [
-                E.input(E.bilingual(span), {
+                E.input({
+                    label: E.bilingual(span),
                     type: 'number', name, 
                     classList: /^att|sp/.test(name) ? 'skill' : 'setup',
                     step: name == 'BAP' || name.includes('Lv') ? 1 : 0.01,
                     placeholder: BuffForm.buffs.default[name] ?? 0,
                     input: 'last'
                 }),
-                /^att|sp/.test(name) ? E('input', {classList: 'formula', name: `Δ${name}`, placeholder: '='}) : '',
+                /^att|sp/.test(name) ? E('input.formula', {name: `Δ${name}`, placeholder: '='}) : '',
                 name == 'attBoss' ? E.checkbox({name: 'boss'}) : ''
             ]),
-            E('div', {classList: 'diff'}, 
+            E('div.diff', 
                 E.radios([
-                    new A(E.bilingual('Before', '之前'), {name: 'time', value: 'before'}), 
-                    new A(E.bilingual('After', '之後'),  {name: 'time', value: 'after', checked: true})
+                    {label: E.bilingual('Before', '之前'), name: 'time', value: 'before'}, 
+                    {label: E.bilingual('After', '之後'), name: 'time', value: 'after', checked: true}
                 ])
             ),
             E('section', [
@@ -119,7 +120,7 @@ class BuffForm extends Form {
         E('div', ['HS', 'CAC'].map(p => Form.showDiff(p))),
         E('div', ['CAD', 'BAD'].flatMap(p => [
             E.icon(p), 
-            E('data', {classList: `ante`, title: p}),
+            E('data.ante', {title: p}),
         ]))
     ];
     ref = () => ({

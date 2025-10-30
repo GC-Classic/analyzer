@@ -95,20 +95,20 @@ class RuneForm extends Form {
     static DOM = () => [
         E('form', [
             ...[0,3,4,5,6].flatMap(s => [
-                E.radio({checked: s === 0, name: 'shape'}, [E('data', {classList: 'post'})]),
+                E.radio({checked: s === 0, name: 'shape', label: E('data.post')}),
                 E('fieldset', [
-                    E('div', {classList: 'from'}, [
-                        E('input', {id: `from-${s}`, placeholder: 'Equipped'}),
+                    E('div.from', [
+                        E(`input#from-${s}`, {placeholder: 'Equipped'}),
                         E('em')
                     ]),
-                    E('div', {classList: 'change'}, [
-                        E('label', {htmlFor: `from-${s}`, classList: 'rune-slot'}),
-                        E.checkbox({id: `switch-${s}`}, ['⟶']),
-                        E('label', {htmlFor: `to-${s}`, classList: 'rune-slot'}),
+                    E('div.change', [
+                        E('label.rune-slot', {htmlFor: `from-${s}`}),
+                        E.checkbox({id: `switch-${s}`, label: '⟶'}),
+                        E('label.rune-slot', {htmlFor: `to-${s}`}),
                     ]),
-                    E('div', {classList: 'to'}, [
+                    E('div.to', [
                         E('em'),
-                        E('input', {id: `to-${s}`, placeholder: 'Subject'}),
+                        E(`input#to-${s}`, {placeholder: 'Subject'}),
                         E('select', {name: `to-${s}`})
                     ]),
                 ])
@@ -117,8 +117,8 @@ class RuneForm extends Form {
         ]),
         E('div', ['A', 'HS'].map(p => [
             p == 'A' ? [E.icon('A'), E.icon('SA')] : E.icon(p), 
-            E('data', {classList: `ante percent`, title: p}),
-            E('data', {classList: `post percent`, title: p}),
+            E('data.ante.percent', {title: p}),
+            E('data.post.percent', {title: p}),
         ]).flat(9))
     ];
     ref = () => ({

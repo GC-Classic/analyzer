@@ -31,18 +31,19 @@ class CharForm extends Form {
     };
     static DOM = () => 
         E('form', [...new O(CharForm.fields).flatMap(([prop, value]) => [
-            E.input([E('prop-icon', {prop, lang: true})], {
+            E.input({
+                label: E('prop-icon', {prop, lang: true}),
                 input: 'last',
                 type: 'number', placeholder: prop, value,
                 step: Stat.decimals.includes(prop) ? .01 : 1,
                 classList: ['attacking', 'damaging'].map(c => CharForm[c].includes(prop) ? c : '')
             }), 
-            E('data', {classList: 'ante', title: prop}),
-            E('input', {classList: 'formula', name: `Δ${prop}`, placeholder: '='})
+            E('data.ante', {title: prop}),
+            E('input.formula', {name: `Δ${prop}`, placeholder: '='})
         ]),
         E('h3', [
             ...E.bilingual('Total Attack', '綜合戰鬥力'),
-            E('output', {name: 'TA'}), E('data', {classList: 'post', title: 'TA'})
+            E('output', {name: 'TA'}), E('data.post', {title: 'TA'})
         ])
     ]);
     ref = () => ({

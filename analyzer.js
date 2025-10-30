@@ -120,11 +120,11 @@ class Analyzer extends HTMLElement {
     static DOM = (saved = {}) => [
         E('link', {rel: 'stylesheet', href: '/common.css'}),
         E('link', {rel: 'stylesheet', href: 'analyzer.css'}),
-        E('form', {id: 'pref'}, [
-            E('button', {type: 'button', id: 'scroll'}, '🔝'),
+        E('form#pref', [
+            E('button#scroll', {type: 'button'}, '🔝'),
             E('input', {name: 'name'}),
             E('input', {type: 'color', value: '#0000ff'}),
-            E('button', {type: 'button', classList: 'action', id: 'delete'}, E.bilingual('Delete', '刪除')),
+            E('button#delete.action', {type: 'button'}, E.bilingual('Delete', '刪除')),
             ...E.bilingual('Rune', '符文'), 
             E.checkbox({id: 'toggle-mode'}),
             ...E.bilingual('Diff', '差異')
@@ -132,20 +132,20 @@ class Analyzer extends HTMLElement {
         new CharForm(saved.CharForm),
         E.ul(['', 'HS', 'CAD', 'CAD HS', 'BAD', 'BAD HS', 'BAD CAD', 'BAD CAD HS'].map(props => [
             ...props ? props.split(' ').map(prop => E.icon(prop)) : [], 
-            E('output'), E('data', {classList: 'post'})
+            E('output'), E('data.post')
         ])),
         E('div', [
-            E.radio(
-                E.bilingual('Normal attack', '普通攻擊'), 
-                {value: 'normal', name: 'skill', checked: true}
-            ),
-            ...E.radios(['sp13', 'sp4', 'spA'].map(skill => new A(
-                E.bilingual(BuffForm.buffs.inputs[skill]),
-                {value: skill, name: 'skill'},
-            ) )),
+            E.radio({
+                label: E.bilingual('Normal attack', '普通攻擊'), 
+                value: 'normal', name: 'skill', checked: true
+            }),
+            ...E.radios(['sp13', 'sp4', 'spA'].map(skill => ({
+                label: E.bilingual(BuffForm.buffs.inputs[skill]),
+                value: skill, name: 'skill',
+            }) )),
             E('h3', [
                 ...E.bilingual('Average damage', '平均傷害'), 
-                E('output'), E('data', {classList: 'post'}),
+                E('output'), E('data.post'),
             ])
         ]),
         E('details', [
