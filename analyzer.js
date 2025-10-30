@@ -91,7 +91,7 @@ class Analyzer extends HTMLElement {
         this.sQ('img[alt=TD]').hidden = TD == 0;
     }
     presentSets (before, after) {
-        let img = s => E('img', {src: `/rune/set/${s}.webp`, classList: ['hunt','rage','punish'].includes(s) ? 'conditional' : ''});
+        let img = s => E(`img${['hunt','rage','punish'].includes(s) ? '.conditional' : ''}`, {src: `/rune/set/${s}.webp`});
         this.el.summary.rune.replaceChildren(...before.map(img), E('i', '⟶'), ...after.map(img));
         Helper.cursor(this.shadowRoot, '.conditional');
     }
